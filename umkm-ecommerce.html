@@ -1,0 +1,2813 @@
+<!DOCTYPE html>
+<html lang="id"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIxMjM5NzMzMjU3NTA4NDQ3NjUzNiIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjXzM5MWM3MzMyYThkNmVhYWVfdW1rbS1lY29tbWVyY2UuaHRtbC0xNDAifSwiZXhwIjoxNzk1NTgwNzkzLCJpYXQiOjE3OTU1NzcxOTMsImFsZyI6IlJTMjU2In0.ivcONCLDf8PleMz107dDsRGnpprzL53Zt41mlcFxwqnfCkd7ON-lAqvafarr_JQYFYVI3s4CcL5NIdKiANAThDKA2lqG_fecm4nx9wsMFRv79filmsvVgeKuQYWwf87g5ZIu5o-LoKZcX997uqUYMYCjRObCx3w9gLnFz2lecqplVAho0DSPtygoM59o-GQxuDHkyLUXidD7-qvgxwzpNy2V1k-YWQBYw96cWxnmbf5SRYeLp567IW-qu_Hzl9-7Dgia4CB29YwAm1A3q5h9HcsO6BFmoONl1SIdoptrWYSyJXSru_7QXKbkq6vcpZzMRCLtHaqQPd65d6aDGFADtA","c_391c7332a8d6eaae_umkm-ecommerce.html-140")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.i=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.extensions="";var l=0,t=null,r=null,q=[],F=new TextEncoder,
+G=new TextDecoder;c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*
+16|0;return(f==="x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;
+(g=t)==null||g.postMessage(a)}};Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function() {
+  const OVERLAY_SELECTOR =
+    'dialog[open], [role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"], [role="combobox"]';
+
+  function isVisibleOverlay(element) {
+    if (element.closest('[hidden], [aria-hidden="true"], [inert]')) {
+      return false;
+    }
+    if (window.getComputedStyle(element).visibility === 'hidden') {
+      return false;
+    }
+    for (let cur = element; cur; cur = cur.parentElement) {
+      if (window.getComputedStyle(cur).display === 'none') {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function hasOpenOverlay() {
+    const candidates = document.querySelectorAll(OVERLAY_SELECTOR);
+    for (let i = 0; i < candidates.length; i++) {
+      if (isVisibleOverlay(candidates[i])) {
+        return true;
+      }
+    }
+    try {
+      if (document.querySelector('[popover]:popover-open')) {
+        return true;
+      }
+    } catch (e) {
+      // Ignore engines that do not support :popover-open.
+    }
+    return false;
+  }
+
+  function isNonEmptySearchInput(target) {
+    return (
+      Boolean(target) &&
+      target.tagName === 'INPUT' &&
+      typeof target.type === 'string' &&
+      target.type.toLowerCase() === 'search' &&
+      typeof target.value === 'string' &&
+      target.value.length > 0
+    );
+  }
+
+  function shouldIgnoreEscape(event) {
+    return (
+      event.key !== 'Escape' ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey ||
+      event.isComposing ||
+      event.repeat ||
+      event.keyCode === 229 ||
+      isNonEmptySearchInput(event.target)
+    );
+  }
+
+  let shouldIgnoreCaptureState = false;
+
+  window.addEventListener(
+    'keydown',
+    function(event) {
+      if (event.key === 'Escape') {
+        shouldIgnoreCaptureState =
+          hasOpenOverlay() || isNonEmptySearchInput(event.target);
+      }
+    },
+    {capture: true},
+  );
+
+  window.addEventListener('keydown', function(event) {
+    if (
+      shouldIgnoreEscape(event) ||
+      event.defaultPrevented ||
+      shouldIgnoreCaptureState
+    ) {
+      return;
+    }
+    const wasBlockedOnCapture = shouldIgnoreCaptureState;
+    queueMicrotask(function() {
+      if (event.defaultPrevented || wasBlockedOnCapture) {
+        return;
+      }
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({'type': 'escapeKey'}, '*');
+      }
+    });
+  });
+})();</script><script data-bard-client-injected="true">(function() {
+  function normalizeSlug(str) {
+    try {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^p{L}p{N}s_-]/gu, '')
+        .replace(/s+/g, '-');
+    } catch (e) {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9s_-]/g, '')
+        .replace(/s+/g, '-');
+    }
+  }
+
+  function findTargetElement(hash) {
+    if (!hash || hash === '#') {
+      return null;
+    }
+    const rawId = hash.startsWith('#') ? hash.slice(1) : hash;
+    let decodedId = rawId;
+    try {
+      decodedId = decodeURIComponent(rawId);
+    } catch (e) {
+      // Ignore URI malformed errors.
+    }
+
+    // 1. Direct ID match (raw and decoded).
+    let target = document.getElementById(rawId) || document.getElementById(decodedId);
+    if (target) {
+      return target;
+    }
+
+    // 2. Name attribute match (<a name="...">).
+    try {
+      if (typeof CSS !== 'undefined' && CSS.escape) {
+        target =
+          document.querySelector('[name="' + CSS.escape(rawId) + '"]') ||
+          document.querySelector('[name="' + CSS.escape(decodedId) + '"]');
+      } else {
+        const namedElements = document.getElementsByName(rawId);
+        if (namedElements && namedElements.length > 0) {
+          return namedElements[0];
+        }
+      }
+    } catch (e) {
+      // Ignore querySelector syntax errors.
+    }
+    if (target) {
+      return target;
+    }
+
+    // 3. Match heading text by slug (for Markdown TOCs where headings lack explicit IDs).
+    const targetSlug = normalizeSlug(decodedId);
+    if (targetSlug) {
+      for (const heading of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        if (normalizeSlug(heading.textContent || '') === targetSlug) {
+          return heading;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  document.addEventListener('click', function(event) {
+    const target = event.target;
+    const anchor = target && typeof target.closest === 'function' ? target.closest('a') : null;
+    if (!anchor) {
+      return;
+    }
+
+    const href = anchor.getAttribute('href');
+    if (
+      !href ||
+      href.trim().toLowerCase().startsWith('javascript:') ||
+      anchor.hasAttribute('download')
+    ) {
+      return;
+    }
+
+    // Check if the link is an in-page hash / anchor link.
+    if (href.startsWith('#')) {
+      event.preventDefault();
+      const targetElement = findTargetElement(href);
+      if (targetElement) {
+        targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+      return;
+    }
+
+    // Check if the URL has the same origin/pathname but with a hash.
+    try {
+      const url = new URL(anchor.href, window.location.href);
+      if (
+        url.hash &&
+        url.origin === window.location.origin &&
+        url.pathname === window.location.pathname
+      ) {
+        event.preventDefault();
+        const targetElement = findTargetElement(url.hash);
+        if (targetElement) {
+          targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+        return;
+      }
+    } catch (e) {
+      // Fall through if URL parsing fails.
+    }
+
+    // For all external or full navigation links, prevent iframe-level navigation
+    // (which breaks in AGSA WebView or sandboxed iframes) and ensure they open
+    // safely in a new tab/window.
+    if (anchor.target !== '_blank') {
+      event.preventDefault();
+      window.open(anchor.href, '_blank', 'noopener,noreferrer');
+    }
+  }, {capture: true});
+})();</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NusantaraMart UMKM — Katalog, Checkout WA &amp; Midtrans, Admin Panel</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest" crossorigin="anonymous"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            900: '#064e3b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .tab-active { background-color: #059669; color: #ffffff; }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:Inter, sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0px}.bottom-5{bottom:1.25rem}.left-3\.5{left:0.875rem}.right-0{right:0px}.right-5{right:1.25rem}.top-0{top:0px}.top-1\/2{top:50%}.z-40{z-index:40}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.my-8{margin-top:2rem;margin-bottom:2rem}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.ml-1{margin-left:0.25rem}.mt-1{margin-top:0.25rem}.line-clamp-2{overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}.block{display:block}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.h-10{height:2.5rem}.h-3\.5{height:0.875rem}.h-4{height:1rem}.h-5{height:1.25rem}.h-8{height:2rem}.h-80{height:20rem}.h-fit{height:-moz-fit-content;height:fit-content}.h-full{height:100%}.h-12{height:3rem}.h-40{height:10rem}.h-6{height:1.5rem}.max-h-\[520px\]{max-height:520px}.min-h-screen{min-height:100vh}.w-10{width:2.5rem}.w-3\.5{width:0.875rem}.w-4{width:1rem}.w-5{width:1.25rem}.w-8{width:2rem}.w-full{width:100%}.w-12{width:3rem}.w-6{width:1.5rem}.max-w-2xl{max-width:42rem}.max-w-7xl{max-width:80rem}.max-w-full{max-width:100%}.max-w-lg{max-width:32rem}.max-w-md{max-width:28rem}.max-w-sm{max-width:24rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.border-collapse{border-collapse:collapse}.-translate-y-1\/2{--tw-translate-y:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.translate-x-full{--tw-translate-x:100%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.transform{transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.cursor-pointer{cursor:pointer}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-center{align-items:center}.items-stretch{align-items:stretch}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-2\.5{gap:0.625rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.space-y-1\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.375rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.375rem * var(--tw-space-y-reverse))}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem * var(--tw-space-y-reverse))}.space-y-6 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem * var(--tw-space-y-reverse))}.space-x-1 > :not([hidden]) ~ :not([hidden]){--tw-space-x-reverse:0;margin-right:calc(0.25rem * var(--tw-space-x-reverse));margin-left:calc(0.25rem * calc(1 - var(--tw-space-x-reverse)))}.divide-y > :not([hidden]) ~ :not([hidden]){--tw-divide-y-reverse:0;border-top-width:calc(1px * calc(1 - var(--tw-divide-y-reverse)));border-bottom-width:calc(1px * var(--tw-divide-y-reverse))}.divide-slate-100 > :not([hidden]) ~ :not([hidden]){--tw-divide-opacity:1;border-color:rgb(241 245 249 / var(--tw-divide-opacity, 1))}.self-start{align-self:flex-start}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.whitespace-nowrap{white-space:nowrap}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-2{border-width:2px}.border-b{border-bottom-width:1px}.border-b-2{border-bottom-width:2px}.border-t{border-top-width:1px}.border-brand-600{--tw-border-opacity:1;border-color:rgb(5 150 105 / var(--tw-border-opacity, 1))}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.border-slate-300{--tw-border-opacity:1;border-color:rgb(203 213 225 / var(--tw-border-opacity, 1))}.border-transparent{border-color:transparent}.border-white\/15{border-color:rgb(255 255 255 / 0.15)}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-blue-100{--tw-bg-opacity:1;background-color:rgb(219 234 254 / var(--tw-bg-opacity, 1))}.bg-blue-50{--tw-bg-opacity:1;background-color:rgb(239 246 255 / var(--tw-bg-opacity, 1))}.bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235 / var(--tw-bg-opacity, 1))}.bg-brand-50{--tw-bg-opacity:1;background-color:rgb(236 253 245 / var(--tw-bg-opacity, 1))}.bg-brand-50\/50{background-color:rgb(236 253 245 / 0.5)}.bg-brand-500{--tw-bg-opacity:1;background-color:rgb(16 185 129 / var(--tw-bg-opacity, 1))}.bg-brand-500\/20{background-color:rgb(16 185 129 / 0.2)}.bg-brand-600{--tw-bg-opacity:1;background-color:rgb(5 150 105 / var(--tw-bg-opacity, 1))}.bg-emerald-600{--tw-bg-opacity:1;background-color:rgb(5 150 105 / var(--tw-bg-opacity, 1))}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.bg-slate-200{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.bg-slate-900\/50{background-color:rgb(15 23 42 / 0.5)}.bg-slate-900\/60{background-color:rgb(15 23 42 / 0.6)}.bg-slate-900\/70{background-color:rgb(15 23 42 / 0.7)}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/10{background-color:rgb(255 255 255 / 0.1)}.bg-white\/95{background-color:rgb(255 255 255 / 0.95)}.bg-black\/30{background-color:rgb(0 0 0 / 0.3)}.bg-white\/15{background-color:rgb(255 255 255 / 0.15)}.bg-white\/20{background-color:rgb(255 255 255 / 0.2)}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.bg-gradient-to-br{background-image:linear-gradient(to bottom right, var(--tw-gradient-stops))}.from-slate-900{--tw-gradient-from:#0f172a var(--tw-gradient-from-position);--tw-gradient-to:rgb(15 23 42 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-amber-700{--tw-gradient-from:#b45309 var(--tw-gradient-from-position);--tw-gradient-to:rgb(180 83 9 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-emerald-600{--tw-gradient-from:#059669 var(--tw-gradient-from-position);--tw-gradient-to:rgb(5 150 105 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-indigo-700{--tw-gradient-from:#4338ca var(--tw-gradient-from-position);--tw-gradient-to:rgb(67 56 202 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-orange-500{--tw-gradient-from:#f97316 var(--tw-gradient-from-position);--tw-gradient-to:rgb(249 115 22 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-red-600{--tw-gradient-from:#dc2626 var(--tw-gradient-from-position);--tw-gradient-to:rgb(220 38 38 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-yellow-600{--tw-gradient-from:#ca8a04 var(--tw-gradient-from-position);--tw-gradient-to:rgb(202 138 4 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-slate-800{--tw-gradient-to:rgb(30 41 59 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #1e293b var(--tw-gradient-via-position), var(--tw-gradient-to)}.to-brand-900{--tw-gradient-to:#064e3b var(--tw-gradient-to-position)}.to-amber-700{--tw-gradient-to:#b45309 var(--tw-gradient-to-position)}.to-rose-800{--tw-gradient-to:#9f1239 var(--tw-gradient-to-position)}.to-slate-900{--tw-gradient-to:#0f172a var(--tw-gradient-to-position)}.to-stone-800{--tw-gradient-to:#292524 var(--tw-gradient-to-position)}.to-teal-800{--tw-gradient-to:#115e59 var(--tw-gradient-to-position)}.p-1{padding:0.25rem}.p-1\.5{padding:0.375rem}.p-2{padding:0.5rem}.p-2\.5{padding:0.625rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.p-10{padding:2.5rem}.px-1\.5{padding-left:0.375rem;padding-right:0.375rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-3\.5{padding-left:0.875rem;padding-right:0.875rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.py-3\.5{padding-top:0.875rem;padding-bottom:0.875rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.py-12{padding-top:3rem;padding-bottom:3rem}.py-8{padding-top:2rem;padding-bottom:2rem}.pb-1{padding-bottom:0.25rem}.pb-3{padding-bottom:0.75rem}.pb-4{padding-bottom:1rem}.pl-10{padding-left:2.5rem}.pr-1{padding-right:0.25rem}.pr-4{padding-right:1rem}.pt-1{padding-top:0.25rem}.pt-2{padding-top:0.5rem}.pt-0{padding-top:0px}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.font-mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}.text-2xl{font-size:1.5rem;line-height:2rem}.text-\[11px\]{font-size:11px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-none{line-height:1}.leading-relaxed{line-height:1.625}.leading-snug{line-height:1.375}.tracking-tight{letter-spacing:-0.025em}.tracking-wider{letter-spacing:0.05em}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.text-blue-700{--tw-text-opacity:1;color:rgb(29 78 216 / var(--tw-text-opacity, 1))}.text-brand-600{--tw-text-opacity:1;color:rgb(5 150 105 / var(--tw-text-opacity, 1))}.text-brand-700{--tw-text-opacity:1;color:rgb(4 120 87 / var(--tw-text-opacity, 1))}.text-emerald-300{--tw-text-opacity:1;color:rgb(110 231 183 / var(--tw-text-opacity, 1))}.text-slate-200{--tw-text-opacity:1;color:rgb(226 232 240 / var(--tw-text-opacity, 1))}.text-slate-300{--tw-text-opacity:1;color:rgb(203 213 225 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6 / var(--tw-text-opacity, 1))}.text-red-600{--tw-text-opacity:1;color:rgb(220 38 38 / var(--tw-text-opacity, 1))}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.accent-blue-600{accent-color:#2563eb}.accent-brand-600{accent-color:#059669}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.backdrop-blur{--tw-backdrop-blur:blur(8px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-opacity{transition-property:opacity;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-300{transition-duration:300ms}.hover\:border-blue-500:hover{--tw-border-opacity:1;border-color:rgb(59 130 246 / var(--tw-border-opacity, 1))}.hover\:border-slate-300:hover{--tw-border-opacity:1;border-color:rgb(203 213 225 / var(--tw-border-opacity, 1))}.hover\:bg-brand-100:hover{--tw-bg-opacity:1;background-color:rgb(209 250 229 / var(--tw-bg-opacity, 1))}.hover\:bg-brand-700:hover{--tw-bg-opacity:1;background-color:rgb(4 120 87 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-100:hover{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-800:hover{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.hover\:bg-white\/10:hover{background-color:rgb(255 255 255 / 0.1)}.hover\:bg-blue-50:hover{--tw-bg-opacity:1;background-color:rgb(239 246 255 / var(--tw-bg-opacity, 1))}.hover\:bg-brand-600:hover{--tw-bg-opacity:1;background-color:rgb(5 150 105 / var(--tw-bg-opacity, 1))}.hover\:bg-red-50:hover{--tw-bg-opacity:1;background-color:rgb(254 242 242 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-200:hover{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-50\/80:hover{background-color:rgb(248 250 252 / 0.8)}.hover\:text-slate-900:hover{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.hover\:shadow-md:hover{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.focus\:bg-white:focus{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.focus\:ring-brand-500:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(16 185 129 / var(--tw-ring-opacity, 1))}.disabled\:cursor-not-allowed:disabled{cursor:not-allowed}.disabled\:bg-slate-300:disabled{--tw-bg-opacity:1;background-color:rgb(203 213 225 / var(--tw-bg-opacity, 1))}.group:hover .group-hover\:scale-105{--tw-scale-x:1.05;--tw-scale-y:1.05;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@media (min-width: 640px){.sm\:inline{display:inline}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-center{align-items:center}.sm\:p-8{padding:2rem}.sm\:px-0{padding-left:0px;padding-right:0px}.sm\:px-6{padding-left:1.5rem;padding-right:1.5rem}.sm\:text-3xl{font-size:1.875rem;line-height:2.25rem}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}}@media (min-width: 768px){.md\:w-80{width:20rem}.md\:flex-row{flex-direction:row}.md\:items-center{align-items:center}.md\:pb-0{padding-bottom:0px}}@media (min-width: 1024px){.lg\:col-span-2{grid-column:span 2 / span 2}.lg\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.lg\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}.lg\:px-8{padding-left:2rem;padding-right:2rem}}</style></head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-wrap items-center justify-between gap-3 py-3.5">
+                <!-- Brand -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="switchMainView('store')">
+                    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="store" aria-hidden="true" class="lucide lucide-store w-5 h-5"><path d="M15 21v-5a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v5"></path><path d="M17.774 10.31a1.12 1.12 0 0 0-1.549 0 2.5 2.5 0 0 1-3.451 0 1.12 1.12 0 0 0-1.548 0 2.5 2.5 0 0 1-3.452 0 1.12 1.12 0 0 0-1.549 0 2.5 2.5 0 0 1-3.77-3.248l2.889-4.184A2 2 0 0 1 7 2h10a2 2 0 0 1 1.653.873l2.895 4.192a2.5 2.5 0 0 1-3.774 3.244"></path><path d="M4 10.95V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8.05"></path></svg>
+                    </div>
+                    <div>
+                        <span class="font-extrabold text-lg tracking-tight text-slate-900 block leading-none">Nusantara<span class="text-brand-600">Mart</span></span>
+                        <span class="text-[11px] font-medium text-slate-500">UMKM E-Commerce Engine</span>
+                    </div>
+                </div>
+
+                <!-- View Switcher (Customer Store vs Admin Panel vs Laravel Blueprint) -->
+                <nav class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 overflow-x-auto max-w-full">
+                    <button id="nav-store" onclick="switchMainView('store')" class="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition whitespace-nowrap text-slate-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shopping-bag" aria-hidden="true" class="lucide lucide-shopping-bag w-4 h-4"><path d="M16 10a4 4 0 0 1-8 0"></path><path d="M3.103 6.034h17.794"></path><path d="M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z"></path></svg>
+                        <span>Toko Pelanggan</span>
+                    </button>
+                    <button id="nav-orders" onclick="switchMainView('orders')" class="hover:text-slate-900 flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition whitespace-nowrap text-slate-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="receipt" aria-hidden="true" class="lucide lucide-receipt w-4 h-4"><path d="M12 17V7"></path><path d="M16 8h-6a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H8"></path><path d="M4 3a1 1 0 0 1 1-1 1.3 1.3 0 0 1 .7.2l.933.6a1.3 1.3 0 0 0 1.4 0l.934-.6a1.3 1.3 0 0 1 1.4 0l.933.6a1.3 1.3 0 0 0 1.4 0l.933-.6a1.3 1.3 0 0 1 1.4 0l.934.6a1.3 1.3 0 0 0 1.4 0l.933-.6A1.3 1.3 0 0 1 19 2a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1 1.3 1.3 0 0 1-.7-.2l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.934.6a1.3 1.3 0 0 1-1.4 0l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-1.4 0l-.934-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-.7.2 1 1 0 0 1-1-1z"></path></svg>
+                        <span>Pesanan &amp; Email</span>
+                        <span id="badge-orders-count" class="ml-1 bg-slate-200 text-slate-700 text-[11px] px-1.5 py-0.5 rounded-full font-bold">0</span>
+                    </button>
+                    <button id="nav-admin" onclick="switchMainView('admin')" class="hover:text-slate-900 flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition whitespace-nowrap text-slate-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="layout-dashboard" aria-hidden="true" class="lucide lucide-layout-dashboard w-4 h-4"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg>
+                        <span>Admin &amp; Laporan</span>
+                    </button>
+                    <button id="nav-blueprint" onclick="switchMainView('blueprint')" class="hover:text-slate-900 flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition whitespace-nowrap tab-active">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="code-2" aria-hidden="true" class="lucide lucide-code-2 w-4 h-4"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg>
+                        <span>Struktur Laravel</span>
+                    </button>
+                </nav>
+
+                <!-- Cart Trigger -->
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleCartDrawer(true)" class="relative inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shopping-cart" aria-hidden="true" class="lucide lucide-shopping-cart w-4 h-4 text-brand-400"><path d="m2.05 2.05 1.099-.028a1 1 0 0 1 1.008.815l2.69 14.347A1 1 0 0 0 7.83 18H18"></path><path d="M4.563 5h16.435a1 1 0 0 1 .981 1.204l-1.026 6.226A2 2 0 0 1 18.962 14H6.25"></path><circle cx="18" cy="20" r="2"></circle><circle cx="8" cy="20" r="2"></circle></svg>
+                        <span class="hidden sm:inline">Keranjang</span>
+                        <span id="cart-badge" class="bg-brand-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- =========================================================
+             VIEW 1: STOREFRONT (KATALOG PRODUK)
+        ========================================================== -->
+        <section id="view-store" class="space-y-6 hidden">
+            <!-- Hero Banner -->
+            <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-brand-900 rounded-2xl p-6 sm:p-8 text-white shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div class="space-y-2 max-w-2xl">
+                    <span class="inline-flex items-center gap-1.5 bg-brand-500/20 text-brand-300 border border-brand-400/30 text-xs font-semibold px-3 py-1 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="sparkles" aria-hidden="true" class="lucide lucide-sparkles w-3.5 h-3.5"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path><path d="M20 2v4"></path><path d="M22 4h-4"></path><circle cx="4" cy="20" r="2"></circle></svg> Produk Lokal Pilihan &amp; Pembayaran Instan
+                    </span>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Belanja Produk UMKM Berkualitas Langsung dari Pengrajin</h1>
+                    <p class="text-slate-300 text-sm sm:text-base">Pilih metode bayar fleksibel: konfirmasi langsung via <strong>WhatsApp Admin</strong> atau pembayaran otomatis <strong>Midtrans</strong> (QRIS, Virtual Account, GoPay, OVO, DANA).</p>
+                </div>
+                <div class="flex flex-wrap gap-2 shrink-0">
+                    <div class="bg-white/10 backdrop-blur border border-white/15 rounded-xl px-4 py-3 text-center">
+                        <div class="text-xs text-slate-300">Stok Real-Time</div>
+                        <div class="font-bold text-base text-brand-300">Auto-Lock</div>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur border border-white/15 rounded-xl px-4 py-3 text-center">
+                        <div class="text-xs text-slate-300">Payment Gateway</div>
+                        <div class="font-bold text-base text-white">WA &amp; Midtrans</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search & Category Filter Bar -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+                <!-- Category Pills -->
+                <div id="category-filters" class="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0"><button onclick="selectCategory('Semua')" class="px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition bg-brand-600 text-white shadow-xs">Semua</button><button onclick="selectCategory('Kopi &amp; Minuman')" class="px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition bg-slate-100 text-slate-600 hover:bg-slate-200">Kopi &amp; Minuman</button><button onclick="selectCategory('Kuliner &amp; Camilan')" class="px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition bg-slate-100 text-slate-600 hover:bg-slate-200">Kuliner &amp; Camilan</button><button onclick="selectCategory('Kriya &amp; Batik')" class="px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition bg-slate-100 text-slate-600 hover:bg-slate-200">Kriya &amp; Batik</button><button onclick="selectCategory('Herbal &amp; Madu')" class="px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition bg-slate-100 text-slate-600 hover:bg-slate-200">Herbal &amp; Madu</button></div>
+                <!-- Search Input -->
+                <div class="relative w-full md:w-80">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="search" aria-hidden="true" class="lucide lucide-search w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg>
+                    <input type="text" id="search-input" oninput="renderProducts()" placeholder="Cari kopi, keripik, batik..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition">
+                </div>
+            </div>
+
+            <!-- Product Grid -->
+            <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition overflow-hidden flex flex-col justify-between group">
+                    <div>
+                        <div class="h-40 bg-gradient-to-br from-amber-700 to-stone-800 p-5 flex flex-col justify-between text-white relative">
+                            <div class="flex items-center justify-between">
+                                <span class="bg-black/30 backdrop-blur text-[11px] font-semibold px-2.5 py-1 rounded-lg">Kopi &amp; Minuman</span>
+                                <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-white/20 text-white">
+                                    Stok: 18
+                                </span>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center group-hover:scale-105 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="coffee" aria-hidden="true" class="lucide lucide-coffee w-6 h-6"><path d="M10 2v2"></path><path d="M14 2v2"></path><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"></path><path d="M6 2v2"></path></svg>
+                            </div>
+                        </div>
+                        <div class="p-4 space-y-1.5">
+                            <h3 class="font-bold text-slate-900 text-base leading-snug line-clamp-2">Kopi Arabika Gayo Sangrai 250g</h3>
+                            <p class="text-xs text-slate-500 line-clamp-2">Biji kopi pilihan dataran tinggi Gayo, medium roast dengan aroma cokelat dan karamel.</p>
+                        </div>
+                    </div>
+                    <div class="p-4 pt-0 space-y-3">
+                        <div class="text-lg font-extrabold text-brand-700">Rp 78.000</div>
+                        <button onclick="addToCart(1)" class="w-full py-2.5 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 bg-slate-900 hover:bg-brand-600 text-white shadow-xs">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shopping-cart" aria-hidden="true" class="lucide lucide-shopping-cart w-3.5 h-3.5"><path d="m2.05 2.05 1.099-.028a1 1 0 0 1 1.008.815l2.69 14.347A1 1 0 0 0 7.83 18H18"></path><path d="M4.563 5h16.435a1 1 0 0 1 .981 1.204l-1.026 6.226A2 2 0 0 1 18.962 14H6.25"></path><circle cx="18" cy="20" r="2"></circle><circle cx="8" cy="20" r="2"></circle></svg>
+                            <span>Tambah ke Keranjang</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition overflow-hidden flex flex-col justify-between group">
+                    <div>
+                        <div class="h-40 bg-gradient-to-br from-yellow-600 to-amber-700 p-5 flex flex-col justify-between text-white relative">
+                            <div class="flex items-center justify-between">
+                                <span class="bg-black/30 backdrop-blur text-[11px] font-semibold px-2.5 py-1 rounded-lg">Kuliner &amp; Camilan</span>
+                                <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-white/20 text-white">
+                                    Stok: 35
+                                </span>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center group-hover:scale-105 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="cookie" aria-hidden="true" class="lucide lucide-cookie w-6 h-6"><path d="M11 17h.01"></path><path d="M11.496 2c.324-.016.558.292.529.615a4 4 0 004.235 4.368.713.713 0 01.758.757 4 4 0 004.366 4.237c.323-.03.63.204.614.527a10 10 0 01-2.915 6.566A1 1 0 114.93 4.918 10 10 0 0111.496 2"></path><path d="M12 12h.01"></path><path d="M16 16h.01"></path><path d="M16 3h.01"></path><path d="M21 4h.01"></path><path d="M21 8h.01"></path><path d="M7 14h.01"></path><path d="M9 8h.01"></path></svg>
+                            </div>
+                        </div>
+                        <div class="p-4 space-y-1.5">
+                            <h3 class="font-bold text-slate-900 text-base leading-snug line-clamp-2">Keripik Pisang Kepok Lumer Cokelat</h3>
+                            <p class="text-xs text-slate-500 line-clamp-2">Pisang kepok renyah dibalut lelehan cokelat premium khas UMKM Lampung.</p>
+                        </div>
+                    </div>
+                    <div class="p-4 pt-0 space-y-3">
+                        <div class="text-lg font-extrabold text-brand-700">Rp 28.000</div>
+                        <button onclick="addToCart(2)" class="w-full py-2.5 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 bg-slate-900 hover:bg-brand-600 text-white shadow-xs">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shopping-cart" aria-hidden="true" class="lucide lucide-shopping-cart w-3.5 h-3.5"><path d="m2.05 2.05 1.099-.028a1 1 0 0 1 1.008.815l2.69 14.347A1 1 0 0 0 7.83 18H18"></path><path d="M4.563 5h16.435a1 1 0 0 1 .981 1.204l-1.026 6.226A2 2 0 0 1 18.962 14H6.25"></path><circle cx="18" cy="20" r="2"></circle><circle cx="8" cy="20" r="2"></circle></svg>
+                            <span>Tambah ke Keranjang</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition overflow-hidden flex flex-col justify-between group">
+                    <div>
+                        <div class="h-40 bg-gradient-to-br from-indigo-700 to-slate-900 p-5 flex flex-col justify-between text-white relative">
+                            <div class="flex items-center justify-between">
+                                <span class="bg-black/30 backdrop-blur text-[11px] font-semibold px-2.5 py-1 rounded-lg">Kriya &amp; Batik</span>
+                                <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-white/20 text-white">
+                                    Stok: 6
+                                </span>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center group-hover:scale-105 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="sparkles" aria-hidden="true" class="lucide lucide-sparkles w-6 h-6"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path><path d="M20 2v4"></path><path d="M22 4h-4"></path><circle cx="4" cy="20" r="2"></circle></svg>
+                            </div>
+                        </div>
+                        <div class="p-4 space-y-1.5">
+                            <h3 class="font-bold text-slate-900 text-base leading-snug line-clamp-2">Kain Batik Tulis Motif Sekar Jagad</h3>
+                            <p class="text-xs text-slate-500 line-clamp-2">Katun primisima halus dengan pewarna alami, dikerjakan pengrajin batik tulis.</p>
+                        </div>
+                    </div>
+                    <div class="p-4 pt-0 space-y-3">
+                        <div class="text-lg font-extrabold text-brand-700">Rp 245.000</div>
+                        <button onclick="addToCart(3)" class="w-full py-2.5 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 bg-slate-900 hover:bg-brand-600 text-white shadow-xs">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shopping-cart" aria-hidden="true" class="lucide lucide-shopping-cart w-3.5 h-3.5"><path d="m2.05 2.05 1.099-.028a1 1 0 0 1 1.008.815l2.69 14.347A1 1 0 0 0 7.83 18H18"></path><path d="M4.563 5h16.435a1 1 0 0 1 .981 1.204l-1.026 6.226A2 2 0 0 1 18.962 14H6.25"></path><circle cx="18" cy="20" r="2"></circle><circle cx="8" cy="20" r="2"></circle></svg>
+                            <span>Tambah ke Keranjang</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition overflow-hidden flex flex-col justify-between group">
+                    <div>
+                        <div class="h-40 bg-gradient-to-br from-orange-500 to-amber-700 p-5 flex flex-col justify-between text-white relative">
+                            <div class="flex items-center justify-between">
+                                <span class="bg-black/30 backdrop-blur text-[11px] font-semibold px-2.5 py-1 rounded-lg">Herbal &amp; Madu</span>
+                                <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-white/20 text-white">
+                                    Stok: 12
+                                </span>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center group-hover:scale-105 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="droplets" aria-hidden="true" class="lucide lucide-droplets w-6 h-6"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"></path><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"></path></svg>
+                            </div>
+                        </div>
+                        <div class="p-4 space-y-1.5">
+                            <h3 class="font-bold text-slate-900 text-base leading-snug line-clamp-2">Madu Hutan Sialang Murni 500ml</h3>
+                            <p class="text-xs text-slate-500 line-clamp-2">100% madu hutan liar tanpa campuran pemanis, kaya antioksidan alami.</p>
+                        </div>
+                    </div>
+                    <div class="p-4 pt-0 space-y-3">
+                        <div class="text-lg font-extrabold text-brand-700">Rp 115.000</div>
+                        <button onclick="addToCart(4)" class="w-full py-2.5 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 bg-slate-900 hover:bg-brand-600 text-white shadow-xs">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shopping-cart" aria-hidden="true" class="lucide lucide-shopping-cart w-3.5 h-3.5"><path d="m2.05 2.05 1.099-.028a1 1 0 0 1 1.008.815l2.69 14.347A1 1 0 0 0 7.83 18H18"></path><path d="M4.563 5h16.435a1 1 0 0 1 .981 1.204l-1.026 6.226A2 2 0 0 1 18.962 14H6.25"></path><circle cx="18" cy="20" r="2"></circle><circle cx="8" cy="20" r="2"></circle></svg>
+                            <span>Tambah ke Keranjang</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition overflow-hidden flex flex-col justify-between group">
+                    <div>
+                        <div class="h-40 bg-gradient-to-br from-red-600 to-rose-800 p-5 flex flex-col justify-between text-white relative">
+                            <div class="flex items-center justify-between">
+                                <span class="bg-black/30 backdrop-blur text-[11px] font-semibold px-2.5 py-1 rounded-lg">Kuliner &amp; Camilan</span>
+                                <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-white/20 text-white">
+                                    Stok: 22
+                                </span>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center group-hover:scale-105 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="flame" aria-hidden="true" class="lucide lucide-flame w-6 h-6"><path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"></path></svg>
+                            </div>
+                        </div>
+                        <div class="p-4 space-y-1.5">
+                            <h3 class="font-bold text-slate-900 text-base leading-snug line-clamp-2">Sambal Roa Asap Manado Botol 200g</h3>
+                            <p class="text-xs text-slate-500 line-clamp-2">Ikan roa asap suwir halus dengan cabai segar dan rempah nusantara.</p>
+                        </div>
+                    </div>
+                    <div class="p-4 pt-0 space-y-3">
+                        <div class="text-lg font-extrabold text-brand-700">Rp 42.000</div>
+                        <button onclick="addToCart(5)" class="w-full py-2.5 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 bg-slate-900 hover:bg-brand-600 text-white shadow-xs">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shopping-cart" aria-hidden="true" class="lucide lucide-shopping-cart w-3.5 h-3.5"><path d="m2.05 2.05 1.099-.028a1 1 0 0 1 1.008.815l2.69 14.347A1 1 0 0 0 7.83 18H18"></path><path d="M4.563 5h16.435a1 1 0 0 1 .981 1.204l-1.026 6.226A2 2 0 0 1 18.962 14H6.25"></path><circle cx="18" cy="20" r="2"></circle><circle cx="8" cy="20" r="2"></circle></svg>
+                            <span>Tambah ke Keranjang</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition overflow-hidden flex flex-col justify-between group">
+                    <div>
+                        <div class="h-40 bg-gradient-to-br from-emerald-600 to-teal-800 p-5 flex flex-col justify-between text-white relative">
+                            <div class="flex items-center justify-between">
+                                <span class="bg-black/30 backdrop-blur text-[11px] font-semibold px-2.5 py-1 rounded-lg">Kriya &amp; Batik</span>
+                                <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-white/20 text-white">
+                                    Stok: 9
+                                </span>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center group-hover:scale-105 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shopping-bag" aria-hidden="true" class="lucide lucide-shopping-bag w-6 h-6"><path d="M16 10a4 4 0 0 1-8 0"></path><path d="M3.103 6.034h17.794"></path><path d="M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z"></path></svg>
+                            </div>
+                        </div>
+                        <div class="p-4 space-y-1.5">
+                            <h3 class="font-bold text-slate-900 text-base leading-snug line-clamp-2">Tas Anyaman Pandan Etnik</h3>
+                            <p class="text-xs text-slate-500 line-clamp-2">Tas tangan ramah lingkungan dari anyaman daun pandan kering berlapis kain furing.</p>
+                        </div>
+                    </div>
+                    <div class="p-4 pt-0 space-y-3">
+                        <div class="text-lg font-extrabold text-brand-700">Rp 135.000</div>
+                        <button onclick="addToCart(6)" class="w-full py-2.5 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 bg-slate-900 hover:bg-brand-600 text-white shadow-xs">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shopping-cart" aria-hidden="true" class="lucide lucide-shopping-cart w-3.5 h-3.5"><path d="m2.05 2.05 1.099-.028a1 1 0 0 1 1.008.815l2.69 14.347A1 1 0 0 0 7.83 18H18"></path><path d="M4.563 5h16.435a1 1 0 0 1 .981 1.204l-1.026 6.226A2 2 0 0 1 18.962 14H6.25"></path><circle cx="18" cy="20" r="2"></circle><circle cx="8" cy="20" r="2"></circle></svg>
+                            <span>Tambah ke Keranjang</span>
+                        </button>
+                    </div>
+                </div></div>
+        </section>
+
+        <!-- =========================================================
+             VIEW 2: RIWAYAT PESANAN & LOG NOTIFIKASI EMAIL PELANGGAN
+        ========================================================== -->
+        <section id="view-orders" class="space-y-6 hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">Pesanan Saya &amp; Invoice</h2>
+                    <p class="text-sm text-slate-500">Pantau status pembayaran, batas waktu (*expired time*), dan simulasi email notifikasi otomatis.</p>
+                </div>
+                <button onclick="switchMainView('store')" class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition self-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="plus" aria-hidden="true" class="lucide lucide-plus w-4 h-4"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg> Belanja Lagi
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Order Cards List -->
+                <div id="customer-orders-list" class="lg:col-span-2 space-y-4">
+                    <div class="bg-white rounded-2xl border border-slate-200 p-10 text-center space-y-2">
+                        <p class="font-bold text-slate-700">Belum ada riwayat pesanan</p>
+                        <p class="text-xs text-slate-500">Silakan pilih produk di katalog dan lakukan checkout untuk menguji alur WhatsApp maupun Midtrans.</p>
+                    </div></div>
+
+                <!-- Automated Email Notification Inbox Simulator -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 h-fit space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="mail" aria-hidden="true" class="lucide lucide-mail w-4 h-4"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path><rect x="2" y="4" width="20" height="16" rx="2"></rect></svg>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-sm text-slate-900">Log Email Otomatis</h3>
+                                <p class="text-[11px] text-slate-500">Laravel Mail Queue Preview</p>
+                            </div>
+                        </div>
+                        <span id="email-count-badge" class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+                    </div>
+                    <div id="email-logs-list" class="space-y-3 max-h-[520px] overflow-y-auto pr-1"><p class="text-xs text-slate-400 text-center py-6">Belum ada notifikasi email terkirim.</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             VIEW 3: ADMIN PANEL & ANALYTICS
+        ========================================================== -->
+        <section id="view-admin" class="space-y-6 hidden">
+            <!-- Header & Reset Demo Data -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">Admin Panel &amp; Laporan Penjualan</h2>
+                    <p class="text-sm text-slate-500">Kelola status pesanan, verifikasi transfer WhatsApp, atur katalog stok, dan pantau analitik UMKM.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="openProductModal()" class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="plus-circle" aria-hidden="true" class="lucide lucide-plus-circle w-4 h-4"><circle cx="12" cy="12" r="10"></circle><path d="M8 12h8"></path><path d="M12 8v8"></path></svg> Tambah Produk
+                    </button>
+                    <button onclick="resetDemoData()" class="inline-flex items-center gap-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 px-3.5 py-2.5 rounded-xl text-sm font-medium transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="rotate-ccw" aria-hidden="true" class="lucide lucide-rotate-ccw w-4 h-4"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg> Reset Demo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Analytics KPI Cards -->
+            <div id="admin-kpi-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                    <div class="text-xs font-semibold text-slate-500">Total Penjualan Lunas</div>
+                    <div class="text-2xl font-extrabold text-brand-700 mt-1">Rp 0</div>
+                    <div class="text-[11px] text-slate-400 mt-1">Dari 0 pesanan terverifikasi</div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                    <div class="text-xs font-semibold text-slate-500">Menunggu Pembayaran</div>
+                    <div class="text-2xl font-extrabold text-amber-600 mt-1">0 Pesanan</div>
+                    <div class="text-[11px] text-slate-400 mt-1">Perlu verifikasi WA / Webhook</div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                    <div class="text-xs font-semibold text-slate-500">Customer Repeat Rate</div>
+                    <div class="text-2xl font-extrabold text-blue-600 mt-1">0%</div>
+                    <div class="text-[11px] text-slate-400 mt-1">0 dari 0 pelanggan repeat</div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                    <div class="text-xs font-semibold text-slate-500">Total Stok Katalog</div>
+                    <div class="text-2xl font-extrabold text-slate-900 mt-1">102 Unit</div>
+                    <div class="text-[11px] text-slate-400 mt-1">Dalam 6 SKU produk aktif</div>
+                </div>
+            </div>
+
+            <!-- Orders Management Table -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <h3 class="font-bold text-base text-slate-900">Manajemen Pesanan &amp; Transaksi</h3>
+                        <p class="text-xs text-slate-500">Pesanan WhatsApp bisa ditandai lunas manual oleh admin; pesanan Midtrans otomatis terupdate via webhook.</p>
+                    </div>
+                    <select id="admin-order-filter" onchange="renderAdminOrders()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <option value="all">Semua Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="paid">Paid (Lunas)</option>
+                        <option value="shipped">Shipped (Dikirim)</option>
+                        <option value="delivered">Delivered (Selesai)</option>
+                        <option value="expired">Expired / Batal</option>
+                    </select>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-[11px] uppercase tracking-wider text-slate-500 font-bold">
+                                <th class="py-3.5 px-4">Invoice &amp; Waktu</th>
+                                <th class="py-3.5 px-4">Pelanggan</th>
+                                <th class="py-3.5 px-4">Metode Bayar</th>
+                                <th class="py-3.5 px-4">Total</th>
+                                <th class="py-3.5 px-4">Status</th>
+                                <th class="py-3.5 px-4 text-right">Aksi Admin</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-orders-tbody" class="divide-y divide-slate-100 text-sm"><tr><td colspan="6" class="py-8 text-center text-xs text-slate-400">Tidak ada data pesanan untuk filter ini.</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Bottom Grid: Product CRUD & Top Selling Products -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Product Stock & CRUD Table -->
+                <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                        <div>
+                            <h3 class="font-bold text-base text-slate-900">Katalog &amp; Pelacakan Stok Produk</h3>
+                            <p class="text-xs text-slate-500">Stok otomatis berkurang saat checkout dan kembali jika order expired/dibatalkan.</p>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-[11px] uppercase tracking-wider text-slate-500 font-bold">
+                                    <th class="py-3 px-4">Produk</th>
+                                    <th class="py-3 px-4">Kategori</th>
+                                    <th class="py-3 px-4">Harga</th>
+                                    <th class="py-3 px-4">Stok</th>
+                                    <th class="py-3 px-4 text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-products-tbody" class="divide-y divide-slate-100 text-sm">
+                <tr class="hover:bg-slate-50/80">
+                    <td class="py-3 px-4 font-semibold text-xs text-slate-900">Kopi Arabika Gayo Sangrai 250g</td>
+                    <td class="py-3 px-4 text-xs text-slate-500">Kopi &amp; Minuman</td>
+                    <td class="py-3 px-4 font-bold text-xs text-slate-800">Rp 78.000</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700">18</span>
+                    </td>
+                    <td class="py-3 px-4 text-right space-x-1 whitespace-nowrap">
+                        <button onclick="openProductModal(1)" class="text-blue-600 hover:bg-blue-50 px-2.5 py-1 rounded-lg text-xs font-bold">Edit</button>
+                        <button onclick="deleteProduct(1)" class="text-red-600 hover:bg-red-50 px-2.5 py-1 rounded-lg text-xs font-bold">Hapus</button>
+                    </td>
+                </tr>
+            
+                <tr class="hover:bg-slate-50/80">
+                    <td class="py-3 px-4 font-semibold text-xs text-slate-900">Keripik Pisang Kepok Lumer Cokelat</td>
+                    <td class="py-3 px-4 text-xs text-slate-500">Kuliner &amp; Camilan</td>
+                    <td class="py-3 px-4 font-bold text-xs text-slate-800">Rp 28.000</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700">35</span>
+                    </td>
+                    <td class="py-3 px-4 text-right space-x-1 whitespace-nowrap">
+                        <button onclick="openProductModal(2)" class="text-blue-600 hover:bg-blue-50 px-2.5 py-1 rounded-lg text-xs font-bold">Edit</button>
+                        <button onclick="deleteProduct(2)" class="text-red-600 hover:bg-red-50 px-2.5 py-1 rounded-lg text-xs font-bold">Hapus</button>
+                    </td>
+                </tr>
+            
+                <tr class="hover:bg-slate-50/80">
+                    <td class="py-3 px-4 font-semibold text-xs text-slate-900">Kain Batik Tulis Motif Sekar Jagad</td>
+                    <td class="py-3 px-4 text-xs text-slate-500">Kriya &amp; Batik</td>
+                    <td class="py-3 px-4 font-bold text-xs text-slate-800">Rp 245.000</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700">6</span>
+                    </td>
+                    <td class="py-3 px-4 text-right space-x-1 whitespace-nowrap">
+                        <button onclick="openProductModal(3)" class="text-blue-600 hover:bg-blue-50 px-2.5 py-1 rounded-lg text-xs font-bold">Edit</button>
+                        <button onclick="deleteProduct(3)" class="text-red-600 hover:bg-red-50 px-2.5 py-1 rounded-lg text-xs font-bold">Hapus</button>
+                    </td>
+                </tr>
+            
+                <tr class="hover:bg-slate-50/80">
+                    <td class="py-3 px-4 font-semibold text-xs text-slate-900">Madu Hutan Sialang Murni 500ml</td>
+                    <td class="py-3 px-4 text-xs text-slate-500">Herbal &amp; Madu</td>
+                    <td class="py-3 px-4 font-bold text-xs text-slate-800">Rp 115.000</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700">12</span>
+                    </td>
+                    <td class="py-3 px-4 text-right space-x-1 whitespace-nowrap">
+                        <button onclick="openProductModal(4)" class="text-blue-600 hover:bg-blue-50 px-2.5 py-1 rounded-lg text-xs font-bold">Edit</button>
+                        <button onclick="deleteProduct(4)" class="text-red-600 hover:bg-red-50 px-2.5 py-1 rounded-lg text-xs font-bold">Hapus</button>
+                    </td>
+                </tr>
+            
+                <tr class="hover:bg-slate-50/80">
+                    <td class="py-3 px-4 font-semibold text-xs text-slate-900">Sambal Roa Asap Manado Botol 200g</td>
+                    <td class="py-3 px-4 text-xs text-slate-500">Kuliner &amp; Camilan</td>
+                    <td class="py-3 px-4 font-bold text-xs text-slate-800">Rp 42.000</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700">22</span>
+                    </td>
+                    <td class="py-3 px-4 text-right space-x-1 whitespace-nowrap">
+                        <button onclick="openProductModal(5)" class="text-blue-600 hover:bg-blue-50 px-2.5 py-1 rounded-lg text-xs font-bold">Edit</button>
+                        <button onclick="deleteProduct(5)" class="text-red-600 hover:bg-red-50 px-2.5 py-1 rounded-lg text-xs font-bold">Hapus</button>
+                    </td>
+                </tr>
+            
+                <tr class="hover:bg-slate-50/80">
+                    <td class="py-3 px-4 font-semibold text-xs text-slate-900">Tas Anyaman Pandan Etnik</td>
+                    <td class="py-3 px-4 text-xs text-slate-500">Kriya &amp; Batik</td>
+                    <td class="py-3 px-4 font-bold text-xs text-slate-800">Rp 135.000</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700">9</span>
+                    </td>
+                    <td class="py-3 px-4 text-right space-x-1 whitespace-nowrap">
+                        <button onclick="openProductModal(6)" class="text-blue-600 hover:bg-blue-50 px-2.5 py-1 rounded-lg text-xs font-bold">Edit</button>
+                        <button onclick="deleteProduct(6)" class="text-red-600 hover:bg-red-50 px-2.5 py-1 rounded-lg text-xs font-bold">Hapus</button>
+                    </td>
+                </tr>
+            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Top Selling Products -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4 h-fit">
+                    <div class="border-b border-slate-100 pb-3">
+                        <h3 class="font-bold text-base text-slate-900">Produk Terlaris (Top-Selling)</h3>
+                        <p class="text-xs text-slate-500">Berdasarkan pesanan berstatus Paid, Shipped, &amp; Delivered</p>
+                    </div>
+                    <div id="top-selling-list" class="space-y-3"><p class="text-xs text-slate-400 text-center py-6">Belum ada data penjualan lunas.</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             VIEW 4: STRUKTUR & BLUEPRINT LARAVEL (READY FOR VS CODE)
+        ========================================================== -->
+        <section id="view-blueprint" class="space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">Arsitektur Proven Laravel UMKM E-Commerce</h2>
+                        <p class="text-sm text-slate-500">Struktur direktori dan kode inti backend yang selaras dengan alur aplikasi ini.</p>
+                    </div>
+                    <button onclick="downloadCurrentHtml()" class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" aria-hidden="true" class="lucide lucide-download w-4 h-4"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg> Download File HTML Ini
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Folder Tree -->
+                    <div class="bg-slate-900 text-slate-200 rounded-xl p-4 font-mono text-xs leading-relaxed overflow-x-auto">
+                        <div class="text-brand-400 font-bold mb-2">project-ecommerce/</div>
+                        <pre>├── app/
+│   ├── Models/
+│   │   ├── Category.php
+│   │   ├── Product.php
+│   │   ├── Cart.php
+│   │   ├── Order.php
+│   │   ├── OrderItem.php
+│   │   ├── User.php
+│   │   └── Transaction.php
+│   ├── Http/Controllers/
+│   │   ├── ProductController.php
+│   │   ├── CartController.php
+│   │   ├── CheckoutController.php
+│   │   ├── PaymentController.php
+│   │   └── Admin/
+│   │       ├── OrderController.php
+│   │       └── ProductController.php
+│   └── Services/
+│       ├── MidtransService.php
+│       └── PaymentFlowService.php
+├── routes/
+│   ├── web.php
+│   └── api.php
+├── database/migrations/
+│   ├── create_categories_table.php
+│   ├── create_products_table.php
+│   ├── create_orders_table.php
+│   ├── create_order_items_table.php
+│   └── create_transactions_table.php
+└── resources/views/
+    ├── products/index.blade.php
+    ├── cart/index.blade.php
+    ├── checkout/index.blade.php
+    ├── payment/success.blade.php
+    └── admin/
+        ├── orders/index.blade.php
+        └── reports/sales.blade.php</pre>
+                    </div>
+
+                    <!-- Copyable Service Code -->
+                    <div class="lg:col-span-2 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">app/Services/PaymentFlowService.php (Alur WA vs Midtrans + Invoice Unik)</span>
+                            <button onclick="copyLaravelSnippet()" class="inline-flex items-center gap-1.5 bg-brand-50 hover:bg-brand-100 text-brand-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="copy" aria-hidden="true" class="lucide lucide-copy w-3.5 h-3.5"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg> Salin Kode PHP
+                            </button>
+                        </div>
+                        <textarea id="laravel-php-snippet" readonly="" class="w-full h-80 bg-slate-900 text-emerald-300 font-mono text-xs p-4 rounded-xl focus:outline-none">public function initiate(Order $order, string $method, ?string $channel = null): array
+{
+    return DB::transaction(function () use ($order, $method, $channel) {
+        $lockedOrder = Order::whereKey($order-&gt;id)-&gt;lockForUpdate()-&gt;firstOrFail();
+
+        if (! $lockedOrder-&gt;invoice_number) {
+            $lockedOrder-&gt;invoice_number = $this-&gt;generateInvoiceNumber();
+        }
+
+        // WA = 24 jam (1440 menit), Midtrans = 60 menit
+        $expiredAt = now()-&gt;addMinutes($method === 'whatsapp' ? 1440 : 60);
+
+        $lockedOrder-&gt;update([
+            'invoice_number'  =&gt; $lockedOrder-&gt;invoice_number,
+            'payment_method'  =&gt; $method,
+            'payment_channel' =&gt; $channel,
+            'status'          =&gt; 'pending',
+            'expired_at'      =&gt; $expiredAt,
+        ]);
+
+        $attempt = $lockedOrder-&gt;transactions()-&gt;count() + 1;
+        $gatewayOrderId = $lockedOrder-&gt;invoice_number . '-' . $attempt;
+
+        $transaction = Transaction::create([
+            'order_id'         =&gt; $lockedOrder-&gt;id,
+            'gateway'          =&gt; $method,
+            'gateway_order_id' =&gt; $gatewayOrderId,
+            'amount'           =&gt; (int) $lockedOrder-&gt;total_price,
+            'status'           =&gt; 'pending',
+            'expired_at'       =&gt; $expiredAt,
+        ]);
+
+        if ($method === 'whatsapp') {
+            $waUrl = $this-&gt;buildWhatsAppUrl($lockedOrder, $transaction);
+            $transaction-&gt;update(['payment_url' =&gt; $waUrl]);
+            return ['url' =&gt; $waUrl, 'transaction' =&gt; $transaction];
+        }
+
+        $snap = $this-&gt;midtransService-&gt;createSnapTransaction($lockedOrder, $transaction, $channel);
+        $transaction-&gt;update([
+            'snap_token'  =&gt; $snap['token'],
+            'payment_url' =&gt; $snap['redirect_url'],
+        ]);
+
+        return ['url' =&gt; $snap['redirect_url'], 'transaction' =&gt; $transaction];
+    });
+}</textarea>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- =========================================================
+         SLIDE-OVER SHOPPING CART DRAWER
+    ========================================================== -->
+    <div id="cart-drawer-backdrop" onclick="toggleCartDrawer(false)" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden transition-opacity"></div>
+    <aside id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="p-5 border-b border-slate-200 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shopping-cart" aria-hidden="true" class="lucide lucide-shopping-cart w-5 h-5 text-brand-600"><path d="m2.05 2.05 1.099-.028a1 1 0 0 1 1.008.815l2.69 14.347A1 1 0 0 0 7.83 18H18"></path><path d="M4.563 5h16.435a1 1 0 0 1 .981 1.204l-1.026 6.226A2 2 0 0 1 18.962 14H6.25"></path><circle cx="18" cy="20" r="2"></circle><circle cx="8" cy="20" r="2"></circle></svg>
+                <h3 class="font-bold text-lg text-slate-900">Keranjang Belanja</h3>
+            </div>
+            <button onclick="toggleCartDrawer(false)" class="p-2 rounded-xl hover:bg-slate-100 text-slate-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x w-5 h-5"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+            </button>
+        </div>
+
+        <div id="cart-items-container" class="flex-1 overflow-y-auto p-5 space-y-4">
+                    <div class="h-full flex flex-col items-center justify-center text-center py-12 text-slate-400 space-y-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shopping-bag" aria-hidden="true" class="lucide lucide-shopping-bag w-12 h-12 text-slate-300"><path d="M16 10a4 4 0 0 1-8 0"></path><path d="M3.103 6.034h17.794"></path><path d="M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z"></path></svg>
+                        <p class="text-sm font-semibold text-slate-600">Keranjang masih kosong</p>
+                        <p class="text-xs">Pilih produk dari katalog untuk mulai belanja.</p>
+                    </div></div>
+
+        <div class="p-5 border-t border-slate-200 bg-slate-50 space-y-4">
+            <div class="flex items-center justify-between text-sm">
+                <span class="text-slate-600">Subtotal Produk</span>
+                <span id="cart-subtotal" class="font-extrabold text-lg text-slate-900">Rp 0</span>
+            </div>
+            <button id="btn-open-checkout" onclick="openCheckoutModal()" class="w-full bg-brand-600 hover:bg-brand-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold py-3.5 px-4 rounded-xl shadow-sm transition flex items-center justify-center gap-2" disabled="">
+                <span>Lanjut ke Checkout</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="arrow-right" aria-hidden="true" class="lucide lucide-arrow-right w-4 h-4"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+            </button>
+        </div>
+    </aside>
+
+    <!-- =========================================================
+         MULTI-STEP CHECKOUT MODAL (ALAMAT + PILIH WA / MIDTRANS)
+    ========================================================== -->
+    <div id="checkout-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden my-8">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+                <div>
+                    <h3 class="font-bold text-lg">Checkout Pesanan</h3>
+                    <p class="text-xs text-slate-300">Lengkapi alamat pengiriman dan pilih metode pembayaran</p>
+                </div>
+                <button onclick="closeCheckoutModal()" class="p-1.5 rounded-lg hover:bg-white/10 text-slate-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x w-5 h-5"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Step Indicator -->
+            <div class="grid grid-cols-3 bg-slate-50 border-b border-slate-200 text-xs font-bold text-center">
+                <div id="step-ind-1" class="py-3 border-b-2 border-brand-600 text-brand-700">1. Alamat &amp; Kurir</div>
+                <div id="step-ind-2" class="py-3 border-b-2 border-transparent text-slate-400">2. Metode Bayar</div>
+                <div id="step-ind-3" class="py-3 border-b-2 border-transparent text-slate-400">3. Review Order</div>
+            </div>
+
+            <form id="checkout-form" onsubmit="submitCheckout(event)" class="p-6 space-y-5">
+                <!-- STEP 1: SHIPPING INFO -->
+                <div id="checkout-step-1" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Penerima *</label>
+                            <input type="text" id="co-name" required="" value="Budi Santoso" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nomor WhatsApp *</label>
+                            <input type="tel" id="co-phone" required="" value="081234567890" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Email (untuk Notifikasi Invoice) *</label>
+                        <input type="email" id="co-email" required="" value="budi.pelanggan@email.com" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Alamat Lengkap Pengiriman *</label>
+                        <textarea id="co-address" rows="2" required="" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">Jl. Sudirman No. 45, Kel. Sukajadi, Kec. Batam Kota, Kepulauan Riau 29444</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Layanan Pengiriman *</label>
+                        <select id="co-shipping" onchange="updateCheckoutSummary()" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm bg-white focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            <option value="12000">JNE Reguler (2-3 Hari) — Rp 12.000</option>
+                            <option value="18000">J&amp;T Express (1-2 Hari) — Rp 18.000</option>
+                            <option value="10000">Pos Kilat Khusus (2-4 Hari) — Rp 10.000</option>
+                            <option value="0">Ambil di Toko UMKM (Gratis) — Rp 0</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-end pt-2">
+                        <button type="button" onclick="goToCheckoutStep(2)" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition">
+                            Lanjut Pilih Pembayaran →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 2: PAYMENT METHOD SELECTION (WHATSAPP VS MIDTRANS) -->
+                <div id="checkout-step-2" class="hidden space-y-4">
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pilih Jalur Pembayaran</p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Option 1: WhatsApp Direct -->
+                        <label onclick="selectPaymentGateway('whatsapp')" id="card-pay-wa" class="cursor-pointer border-2 border-brand-600 bg-brand-50/50 rounded-2xl p-4 transition flex flex-col justify-between gap-3">
+                            <div class="flex items-start justify-between">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="message-circle" aria-hidden="true" class="lucide lucide-message-circle w-5 h-5"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"></path></svg>
+                                </div>
+                                <input type="radio" name="payment_method" value="whatsapp" checked="" class="accent-brand-600 w-4 h-4 mt-1">
+                            </div>
+                            <div>
+                                <div class="font-bold text-slate-900 text-sm">1. WhatsApp (Langsung ke Admin)</div>
+                                <p class="text-xs text-slate-600 mt-1">Auto-generate invoice unik &amp; pesan WA terformat. Batas bayar <strong>24 jam</strong>.</p>
+                            </div>
+                        </label>
+
+                        <!-- Option 2: Midtrans Gateway -->
+                        <label onclick="selectPaymentGateway('midtrans')" id="card-pay-midtrans" class="cursor-pointer border-2 border-slate-200 hover:border-slate-300 bg-white rounded-2xl p-4 transition flex flex-col justify-between gap-3">
+                            <div class="flex items-start justify-between">
+                                <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="credit-card" aria-hidden="true" class="lucide lucide-credit-card w-5 h-5"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line><path d="M6 14h2"></path></svg>
+                                </div>
+                                <input type="radio" name="payment_method" value="midtrans" class="accent-blue-600 w-4 h-4 mt-1">
+                            </div>
+                            <div>
+                                <div class="font-bold text-slate-900 text-sm">2. Midtrans Payment Gateway</div>
+                                <p class="text-xs text-slate-600 mt-1">Otomatis verifikasi (QRIS, VA Bank, GoPay, OVO, DANA, Cicilan). Batas bayar <strong>60 menit</strong>.</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Sub-channel selector for Midtrans -->
+                    <div id="midtrans-channels-box" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+                        <label class="block text-xs font-bold text-slate-700">Pilih Kanal Pembayaran Midtrans:</label>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
+                            <label class="flex items-center gap-2 bg-white border border-slate-200 p-2.5 rounded-xl cursor-pointer hover:border-blue-500">
+                                <input type="radio" name="payment_channel" value="QRIS" checked="" class="accent-blue-600">
+                                <span class="font-semibold">QRIS Instan</span>
+                            </label>
+                            <label class="flex items-center gap-2 bg-white border border-slate-200 p-2.5 rounded-xl cursor-pointer hover:border-blue-500">
+                                <input type="radio" name="payment_channel" value="Transfer Bank (VA)" class="accent-blue-600">
+                                <span class="font-semibold">Transfer Bank VA</span>
+                            </label>
+                            <label class="flex items-center gap-2 bg-white border border-slate-200 p-2.5 rounded-xl cursor-pointer hover:border-blue-500">
+                                <input type="radio" name="payment_channel" value="GoPay" class="accent-blue-600">
+                                <span class="font-semibold">GoPay</span>
+                            </label>
+                            <label class="flex items-center gap-2 bg-white border border-slate-200 p-2.5 rounded-xl cursor-pointer hover:border-blue-500">
+                                <input type="radio" name="payment_channel" value="OVO" class="accent-blue-600">
+                                <span class="font-semibold">OVO</span>
+                            </label>
+                            <label class="flex items-center gap-2 bg-white border border-slate-200 p-2.5 rounded-xl cursor-pointer hover:border-blue-500">
+                                <input type="radio" name="payment_channel" value="DANA" class="accent-blue-600">
+                                <span class="font-semibold">DANA</span>
+                            </label>
+                            <label class="flex items-center gap-2 bg-white border border-slate-200 p-2.5 rounded-xl cursor-pointer hover:border-blue-500">
+                                <input type="radio" name="payment_channel" value="Cicilan Kartu Kredit" class="accent-blue-600">
+                                <span class="font-semibold">Cicilan Kartu</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-2">
+                        <button type="button" onclick="goToCheckoutStep(1)" class="text-slate-600 hover:text-slate-900 font-semibold text-sm px-4 py-2">
+                            ← Kembali
+                        </button>
+                        <button type="button" onclick="goToCheckoutStep(3)" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition">
+                            Review Pesanan →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 3: ORDER REVIEW & CONFIRM -->
+                <div id="checkout-step-3" class="hidden space-y-4">
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-3 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Penerima:</span>
+                            <span id="rev-customer" class="font-semibold text-slate-900 text-right"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Metode Pembayaran:</span>
+                            <span id="rev-payment" class="font-bold text-brand-700"></span>
+                        </div>
+                        <div class="border-t border-slate-200 pt-2 space-y-1.5" id="rev-items-list">
+                            <!-- Items summary -->
+                        </div>
+                        <div class="border-t border-slate-200 pt-2 flex justify-between text-xs text-slate-600">
+                            <span>Ongkos Kirim</span>
+                            <span id="rev-shipping">Rp 0</span>
+                        </div>
+                        <div class="flex justify-between font-extrabold text-base text-slate-900 pt-1">
+                            <span>Total Pembayaran</span>
+                            <span id="rev-total" class="text-brand-600">Rp 0</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-2">
+                        <button type="button" onclick="goToCheckoutStep(2)" class="text-slate-600 hover:text-slate-900 font-semibold text-sm px-4 py-2">
+                            ← Ubah Pembayaran
+                        </button>
+                        <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md transition flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="lock" aria-hidden="true" class="lucide lucide-lock w-4 h-4 text-brand-400"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            <span>Buat Invoice &amp; Proses Bayar</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         PAYMENT GATEWAY / WHATSAPP EXECUTION MODAL
+    ========================================================== -->
+    <div id="payment-gateway-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden my-8">
+            <div id="pg-modal-content">
+                <!-- Rendered dynamically for WhatsApp or Midtrans Snap -->
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         ADMIN PRODUCT ADD/EDIT MODAL
+    ========================================================== -->
+    <div id="product-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                <h3 id="product-modal-title" class="font-bold text-lg text-slate-900">Tambah Produk Baru</h3>
+                <button onclick="closeProductModal()" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x w-5 h-5"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                </button>
+            </div>
+            <form onsubmit="saveProduct(event)" class="p-6 space-y-4">
+                <input type="hidden" id="prod-id">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nama Produk *</label>
+                    <input type="text" id="prod-name" required="" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Kategori *</label>
+                        <select id="prod-category" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm bg-white focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            <option value="Kopi &amp; Minuman">Kopi &amp; Minuman</option>
+                            <option value="Kuliner &amp; Camilan">Kuliner &amp; Camilan</option>
+                            <option value="Kriya &amp; Batik">Kriya &amp; Batik</option>
+                            <option value="Herbal &amp; Madu">Herbal &amp; Madu</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Stok Tersedia *</label>
+                        <input type="number" id="prod-stock" min="0" required="" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Harga (Rp) *</label>
+                    <input type="number" id="prod-price" min="1000" step="500" required="" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Deskripsi Singkat</label>
+                    <textarea id="prod-desc" rows="2" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeProductModal()" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100">Batal</button>
+                    <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm shadow-sm">Simpan Produk</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         JAVASCRIPT APPLICATION ENGINE
+    ========================================================== -->
+    <script>
+        // --- 1. INITIAL SEED DATA ---
+        const DEFAULT_PRODUCTS = [
+            {
+                id: 1,
+                name: 'Kopi Arabika Gayo Sangrai 250g',
+                category: 'Kopi & Minuman',
+                price: 78000,
+                stock: 18,
+                desc: 'Biji kopi pilihan dataran tinggi Gayo, medium roast dengan aroma cokelat dan karamel.',
+                color: 'from-amber-700 to-stone-800',
+                icon: 'coffee'
+            },
+            {
+                id: 2,
+                name: 'Keripik Pisang Kepok Lumer Cokelat',
+                category: 'Kuliner & Camilan',
+                price: 28000,
+                stock: 35,
+                desc: 'Pisang kepok renyah dibalut lelehan cokelat premium khas UMKM Lampung.',
+                color: 'from-yellow-600 to-amber-700',
+                icon: 'cookie'
+            },
+            {
+                id: 3,
+                name: 'Kain Batik Tulis Motif Sekar Jagad',
+                category: 'Kriya & Batik',
+                price: 245000,
+                stock: 6,
+                desc: 'Katun primisima halus dengan pewarna alami, dikerjakan pengrajin batik tulis.',
+                color: 'from-indigo-700 to-slate-900',
+                icon: 'sparkles'
+            },
+            {
+                id: 4,
+                name: 'Madu Hutan Sialang Murni 500ml',
+                category: 'Herbal & Madu',
+                price: 115000,
+                stock: 12,
+                desc: '100% madu hutan liar tanpa campuran pemanis, kaya antioksidan alami.',
+                color: 'from-orange-500 to-amber-700',
+                icon: 'droplets'
+            },
+            {
+                id: 5,
+                name: 'Sambal Roa Asap Manado Botol 200g',
+                category: 'Kuliner & Camilan',
+                price: 42000,
+                stock: 22,
+                desc: 'Ikan roa asap suwir halus dengan cabai segar dan rempah nusantara.',
+                color: 'from-red-600 to-rose-800',
+                icon: 'flame'
+            },
+            {
+                id: 6,
+                name: 'Tas Anyaman Pandan Etnik',
+                category: 'Kriya & Batik',
+                price: 135000,
+                stock: 9,
+                desc: 'Tas tangan ramah lingkungan dari anyaman daun pandan kering berlapis kain furing.',
+                color: 'from-emerald-600 to-teal-800',
+                icon: 'shopping-bag'
+            }
+        ];
+
+        const STORAGE_KEYS = {
+            PRODUCTS: 'umkm_products_v1',
+            CART: 'umkm_cart_v1',
+            ORDERS: 'umkm_orders_v1',
+            EMAILS: 'umkm_emails_v1',
+            SEQ: 'umkm_invoice_seq_v1'
+        };
+
+        let state = {
+            products: [],
+            cart: [],
+            orders: [],
+            emails: [],
+            selectedCategory: 'Semua',
+            activePaymentOrderId: null
+        };
+
+        // --- 2. STATE PERSISTENCE & INITIALIZATION ---
+        function loadState() {
+            const savedProducts = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
+            const savedCart = localStorage.getItem(STORAGE_KEYS.CART);
+            const savedOrders = localStorage.getItem(STORAGE_KEYS.ORDERS);
+            const savedEmails = localStorage.getItem(STORAGE_KEYS.EMAILS);
+
+            state.products = savedProducts ? JSON.parse(savedProducts) : JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+            state.cart = savedCart ? JSON.parse(savedCart) : [];
+            state.orders = savedOrders ? JSON.parse(savedOrders) : [];
+            state.emails = savedEmails ? JSON.parse(savedEmails) : [];
+
+            if (!savedProducts) saveState();
+        }
+
+        function saveState() {
+            localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(state.products));
+            localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(state.cart));
+            localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(state.orders));
+            localStorage.setItem(STORAGE_KEYS.EMAILS, JSON.stringify(state.emails));
+        }
+
+        function resetDemoData() {
+            localStorage.removeItem(STORAGE_KEYS.PRODUCTS);
+            localStorage.removeItem(STORAGE_KEYS.CART);
+            localStorage.removeItem(STORAGE_KEYS.ORDERS);
+            localStorage.removeItem(STORAGE_KEYS.EMAILS);
+            localStorage.removeItem(STORAGE_KEYS.SEQ);
+            loadState();
+            renderAll();
+            showToast('Data demo berhasil direset ke kondisi awal.', 'info');
+        }
+
+        // --- 3. FORMATTING HELPERS ---
+        function formatRupiah(amount) {
+            return 'Rp ' + Number(amount || 0).toLocaleString('id-ID');
+        }
+
+        function formatDateTime(isoStr) {
+            if (!isoStr) return '-';
+            const d = new Date(isoStr);
+            return d.toLocaleString('id-ID', {
+                day: '2-digit', month: 'short', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            }) + ' WIB';
+        }
+
+        function generateUniqueInvoice() {
+            const now = new Date();
+            const yyyy = now.getFullYear();
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            const currentSeq = Number(localStorage.getItem(STORAGE_KEYS.SEQ) || 0) + 1;
+            localStorage.setItem(STORAGE_KEYS.SEQ, String(currentSeq));
+            return `INV-${yyyy}${mm}${dd}-${String(currentSeq).padStart(4, '0')}`;
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const el = document.createElement('div');
+            const styles = {
+                success: 'bg-slate-900 text-white border-brand-500',
+                error: 'bg-red-600 text-white border-red-800',
+                info: 'bg-blue-600 text-white border-blue-800'
+            };
+            el.className = `pointer-events-auto border-l-4 ${styles[type] || styles.success} px-4 py-3 rounded-xl shadow-lg text-xs sm:text-sm font-medium flex items-center justify-between gap-3 transition-all`;
+            el.innerHTML = `<span>${message}</span><button onclick="this.parentElement.remove()" class="opacity-70 hover:opacity-100 font-bold">&times;</button>`;
+            container.appendChild(el);
+            setTimeout(() => el.remove(), 4000);
+        }
+
+        // --- 4. NAVIGATION ---
+        function switchMainView(viewName) {
+            ['store', 'orders', 'admin', 'blueprint'].forEach(v => {
+                document.getElementById(`view-${v}`).classList.add('hidden');
+                const btn = document.getElementById(`nav-${v}`);
+                btn.classList.remove('tab-active');
+                btn.classList.add('text-slate-600');
+            });
+
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`nav-${viewName}`);
+            activeBtn.classList.add('tab-active');
+            activeBtn.classList.remove('text-slate-600');
+
+            renderAll();
+        }
+
+        // --- 5. CATALOG & CATEGORY RENDERING ---
+        function renderCategories() {
+            const categories = ['Semua', ...new Set(state.products.map(p => p.category))];
+            const container = document.getElementById('category-filters');
+            container.innerHTML = categories.map(cat => {
+                const isActive = state.selectedCategory === cat;
+                return `<button onclick="selectCategory('${cat}')" class="px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition ${isActive ? 'bg-brand-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">${cat}</button>`;
+            }).join('');
+        }
+
+        function selectCategory(cat) {
+            state.selectedCategory = cat;
+            renderCategories();
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const query = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
+            const grid = document.getElementById('product-grid');
+
+            const filtered = state.products.filter(p => {
+                const matchCat = state.selectedCategory === 'Semua' || p.category === state.selectedCategory;
+                const matchSearch = p.name.toLowerCase().includes(query) || p.desc.toLowerCase().includes(query);
+                return matchCat && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full bg-white rounded-2xl border border-slate-200 p-10 text-center text-slate-500 text-sm">Produk tidak ditemukan. Coba kata kunci atau kategori lain.</div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(p => {
+                const outOfStock = p.stock <= 0;
+                return `
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition overflow-hidden flex flex-col justify-between group">
+                    <div>
+                        <div class="h-40 bg-gradient-to-br ${p.color || 'from-brand-600 to-slate-800'} p-5 flex flex-col justify-between text-white relative">
+                            <div class="flex items-center justify-between">
+                                <span class="bg-black/30 backdrop-blur text-[11px] font-semibold px-2.5 py-1 rounded-lg">${p.category}</span>
+                                <span class="text-xs font-bold px-2.5 py-1 rounded-lg ${outOfStock ? 'bg-red-500 text-white' : 'bg-white/20 text-white'}">
+                                    ${outOfStock ? 'Stok Habis' : `Stok: ${p.stock}`}
+                                </span>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center group-hover:scale-105 transition">
+                                <i data-lucide="${p.icon || 'package'}" class="w-6 h-6"></i>
+                            </div>
+                        </div>
+                        <div class="p-4 space-y-1.5">
+                            <h3 class="font-bold text-slate-900 text-base leading-snug line-clamp-2">${p.name}</h3>
+                            <p class="text-xs text-slate-500 line-clamp-2">${p.desc || 'Produk unggulan UMKM berkualitas.'}</p>
+                        </div>
+                    </div>
+                    <div class="p-4 pt-0 space-y-3">
+                        <div class="text-lg font-extrabold text-brand-700">${formatRupiah(p.price)}</div>
+                        <button onclick="addToCart(${p.id})" ${outOfStock ? 'disabled' : ''} class="w-full py-2.5 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${outOfStock ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-slate-900 hover:bg-brand-600 text-white shadow-xs'}">
+                            <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
+                            <span>${outOfStock ? 'Stok Kosong' : 'Tambah ke Keranjang'}</span>
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        // --- 6. PERSISTENT SHOPPING CART ---
+        function addToCart(productId) {
+            const product = state.products.find(p => p.id === productId);
+            if (!product || product.stock <= 0) {
+                showToast('Maaf, stok produk habis.', 'error');
+                return;
+            }
+
+            const existing = state.cart.find(item => item.productId === productId);
+            if (existing) {
+                if (existing.quantity + 1 > product.stock) {
+                    showToast(`Maksimal stok tersedia hanya ${product.stock} item.`, 'error');
+                    return;
+                }
+                existing.quantity += 1;
+            } else {
+                state.cart.push({ productId: product.id, quantity: 1 });
+            }
+
+            saveState();
+            renderCart();
+            showToast(`"${product.name}" ditambahkan ke keranjang.`);
+        }
+
+        function updateCartQty(productId, delta) {
+            const idx = state.cart.findIndex(i => i.productId === productId);
+            if (idx === -1) return;
+
+            const product = state.products.find(p => p.id === productId);
+            const nextQty = state.cart[idx].quantity + delta;
+
+            if (nextQty <= 0) {
+                state.cart.splice(idx, 1);
+            } else if (product && nextQty > product.stock) {
+                showToast(`Stok tersisa hanya ${product.stock}.`, 'error');
+                return;
+            } else {
+                state.cart[idx].quantity = nextQty;
+            }
+
+            saveState();
+            renderCart();
+        }
+
+        function renderCart() {
+            // Sync cart with existing products & stock
+            state.cart = state.cart.filter(item => {
+                const p = state.products.find(prod => prod.id === item.productId);
+                return p && p.stock > 0;
+            }).map(item => {
+                const p = state.products.find(prod => prod.id === item.productId);
+                return { productId: item.productId, quantity: Math.min(item.quantity, p.stock) };
+            });
+
+            const totalQty = state.cart.reduce((sum, i) => sum + i.quantity, 0);
+            document.getElementById('cart-badge').textContent = totalQty;
+
+            const container = document.getElementById('cart-items-container');
+            const checkoutBtn = document.getElementById('btn-open-checkout');
+
+            if (state.cart.length === 0) {
+                container.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-center py-12 text-slate-400 space-y-2">
+                        <i data-lucide="shopping-bag" class="w-12 h-12 text-slate-300"></i>
+                        <p class="text-sm font-semibold text-slate-600">Keranjang masih kosong</p>
+                        <p class="text-xs">Pilih produk dari katalog untuk mulai belanja.</p>
+                    </div>`;
+                document.getElementById('cart-subtotal').textContent = 'Rp 0';
+                checkoutBtn.disabled = true;
+                lucide.createIcons();
+                return;
+            }
+
+            checkoutBtn.disabled = false;
+            let subtotal = 0;
+
+            container.innerHTML = state.cart.map(item => {
+                const p = state.products.find(prod => prod.id === item.productId);
+                const lineTotal = p.price * item.quantity;
+                subtotal += lineTotal;
+
+                return `
+                <div class="flex items-center justify-between gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <div class="min-w-0 flex-1">
+                        <h4 class="font-bold text-sm text-slate-900 truncate">${p.name}</h4>
+                        <div class="text-xs text-brand-700 font-semibold mt-0.5">${formatRupiah(p.price)} &times; ${item.quantity}</div>
+                        <div class="text-[11px] text-slate-400">Sisa stok: ${p.stock}</div>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="updateCartQty(${p.id}, -1)" class="w-7 h-7 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 font-bold text-slate-700 flex items-center justify-center">-</button>
+                        <span class="w-7 text-center text-xs font-bold">${item.quantity}</span>
+                        <button onclick="updateCartQty(${p.id}, 1)" class="w-7 h-7 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 font-bold text-slate-700 flex items-center justify-center">+</button>
+                    </div>
+                </div>`;
+            }).join('');
+
+            document.getElementById('cart-subtotal').textContent = formatRupiah(subtotal);
+            lucide.createIcons();
+        }
+
+        function toggleCartDrawer(open) {
+            const backdrop = document.getElementById('cart-drawer-backdrop');
+            const drawer = document.getElementById('cart-drawer');
+            if (open) {
+                renderCart();
+                backdrop.classList.remove('hidden');
+                drawer.classList.remove('translate-x-full');
+            } else {
+                backdrop.classList.add('hidden');
+                drawer.classList.add('translate-x-full');
+            }
+        }
+
+        // --- 7. MULTI-STEP CHECKOUT & PAYMENT BRANCHING ---
+        function openCheckoutModal() {
+            if (state.cart.length === 0) return;
+            toggleCartDrawer(false);
+            goToCheckoutStep(1);
+            document.getElementById('checkout-modal').classList.remove('hidden');
+            document.getElementById('checkout-modal').classList.add('flex');
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkout-modal').classList.add('hidden');
+            document.getElementById('checkout-modal').classList.remove('flex');
+        }
+
+        function selectPaymentGateway(gateway) {
+            const cardWa = document.getElementById('card-pay-wa');
+            const cardMid = document.getElementById('card-pay-midtrans');
+            const channelsBox = document.getElementById('midtrans-channels-box');
+
+            if (gateway === 'whatsapp') {
+                cardWa.className = 'cursor-pointer border-2 border-brand-600 bg-brand-50/50 rounded-2xl p-4 transition flex flex-col justify-between gap-3';
+                cardMid.className = 'cursor-pointer border-2 border-slate-200 hover:border-slate-300 bg-white rounded-2xl p-4 transition flex flex-col justify-between gap-3';
+                channelsBox.classList.add('hidden');
+            } else {
+                cardMid.className = 'cursor-pointer border-2 border-blue-600 bg-blue-50/40 rounded-2xl p-4 transition flex flex-col justify-between gap-3';
+                cardWa.className = 'cursor-pointer border-2 border-slate-200 hover:border-slate-300 bg-white rounded-2xl p-4 transition flex flex-col justify-between gap-3';
+                channelsBox.classList.remove('hidden');
+            }
+        }
+
+        function goToCheckoutStep(step) {
+            if (step === 2) {
+                const name = document.getElementById('co-name').value.trim();
+                const phone = document.getElementById('co-phone').value.trim();
+                const email = document.getElementById('co-email').value.trim();
+                const addr = document.getElementById('co-address').value.trim();
+                if (!name || !phone || !email || !addr) {
+                    showToast('Lengkapi semua kolom informasi pengiriman terlebih dahulu.', 'error');
+                    return;
+                }
+            }
+
+            if (step === 3) {
+                updateCheckoutSummary();
+            }
+
+            [1, 2, 3].forEach(s => {
+                document.getElementById(`checkout-step-${s}`).classList.toggle('hidden', s !== step);
+                const ind = document.getElementById(`step-ind-${s}`);
+                if (s === step) {
+                    ind.className = 'py-3 border-b-2 border-brand-600 text-brand-700 font-bold';
+                } else {
+                    ind.className = 'py-3 border-b-2 border-transparent text-slate-400 font-bold';
+                }
+            });
+        }
+
+        function updateCheckoutSummary() {
+            const name = document.getElementById('co-name').value.trim();
+            const phone = document.getElementById('co-phone').value.trim();
+            const method = document.querySelector('input[name="payment_method"]:checked')?.value || 'whatsapp';
+            const channel = document.querySelector('input[name="payment_channel"]:checked')?.value || 'QRIS';
+            const shippingCost = Number(document.getElementById('co-shipping').value || 0);
+
+            document.getElementById('rev-customer').textContent = `${name} (${phone})`;
+            document.getElementById('rev-payment').textContent = method === 'whatsapp'
+                ? 'WhatsApp Direct (Batas 24 Jam)'
+                : `Midtrans — ${channel} (Batas 60 Menit)`;
+
+            let subtotal = 0;
+            const itemsHtml = state.cart.map(item => {
+                const p = state.products.find(prod => prod.id === item.productId);
+                const line = p.price * item.quantity;
+                subtotal += line;
+                return `<div class="flex justify-between text-xs"><span class="text-slate-700">${p.name} &times; ${item.quantity}</span><span class="font-semibold">${formatRupiah(line)}</span></div>`;
+            }).join('');
+
+            document.getElementById('rev-items-list').innerHTML = itemsHtml;
+            document.getElementById('rev-shipping').textContent = formatRupiah(shippingCost);
+            document.getElementById('rev-total').textContent = formatRupiah(subtotal + shippingCost);
+        }
+
+        function submitCheckout(event) {
+            event.preventDefault();
+
+            // 1. Validate & Atomically Lock Stock
+            let subtotal = 0;
+            const orderItems = [];
+
+            for (const item of state.cart) {
+                const prod = state.products.find(p => p.id === item.productId);
+                if (!prod || prod.stock < item.quantity) {
+                    showToast(`Stok ${prod ? prod.name : 'produk'} tidak mencukupi!`, 'error');
+                    return;
+                }
+            }
+
+            // Decrement stock
+            for (const item of state.cart) {
+                const prod = state.products.find(p => p.id === item.productId);
+                prod.stock -= item.quantity;
+                const lineTotal = prod.price * item.quantity;
+                subtotal += lineTotal;
+                orderItems.push({
+                    product_id: prod.id,
+                    product_name: prod.name,
+                    unit_price: prod.price,
+                    quantity: item.quantity,
+                    line_total: lineTotal
+                });
+            }
+
+            const shippingCost = Number(document.getElementById('co-shipping').value || 0);
+            const totalPrice = subtotal + shippingCost;
+            const method = document.querySelector('input[name="payment_method"]:checked')?.value || 'whatsapp';
+            const channel = method === 'midtrans'
+                ? (document.querySelector('input[name="payment_channel"]:checked')?.value || 'QRIS')
+                : 'Transfer Manual / Admin WA';
+
+            const invoiceNumber = generateUniqueInvoice();
+            const ttlMinutes = method === 'whatsapp' ? 1440 : 60;
+            const expiredAt = new Date(Date.now() + ttlMinutes * 60 * 1000).toISOString();
+
+            const newOrder = {
+                id: Date.now(),
+                invoice_number: invoiceNumber,
+                gateway_order_id: `${invoiceNumber}-1`,
+                customer_name: document.getElementById('co-name').value.trim(),
+                customer_email: document.getElementById('co-email').value.trim(),
+                customer_phone: document.getElementById('co-phone').value.trim(),
+                shipping_address: document.getElementById('co-address').value.trim(),
+                items: orderItems,
+                subtotal,
+                shipping_cost: shippingCost,
+                total_price: totalPrice,
+                payment_method: method,
+                payment_channel: channel,
+                status: 'pending',
+                created_at: new Date().toISOString(),
+                expired_at: expiredAt,
+                paid_at: null
+            };
+
+            state.orders.unshift(newOrder);
+            state.cart = [];
+
+            // Trigger Automated Email Notification
+            pushEmailLog(
+                newOrder.customer_email,
+                `[${newOrder.invoice_number}] Menunggu Pembayaran (${method === 'whatsapp' ? 'WhatsApp' : 'Midtrans'})`,
+                `Halo ${newOrder.customer_name}, pesanan senilai ${formatRupiah(newOrder.total_price)} telah dibuat. Selesaikan pembayaran sebelum ${formatDateTime(newOrder.expired_at)}.`
+            );
+
+            saveState();
+            closeCheckoutModal();
+            renderAll();
+            openPaymentGatewayModal(newOrder.id);
+        }
+
+        // --- 8. PAYMENT EXECUTION MODAL (WHATSAPP & MIDTRANS SNAP SIMULATOR) ---
+        function openPaymentGatewayModal(orderId) {
+            const order = state.orders.find(o => o.id === orderId);
+            if (!order) return;
+            state.activePaymentOrderId = order.id;
+
+            const container = document.getElementById('pg-modal-content');
+
+            if (order.payment_method === 'whatsapp') {
+                const waText = [
+                    `Halo Admin NusantaraMart, saya ingin konfirmasi pembayaran pesanan:`,
+                    `• Invoice: ${order.invoice_number}`,
+                    `• Nama: ${order.customer_name}`,
+                    `• Total: ${formatRupiah(order.total_price)}`,
+                    `• Batas Bayar: ${formatDateTime(order.expired_at)}`
+                ].join('\n');
+                const waLink = `https://wa.me/6281200009999?text=${encodeURIComponent(waText)}`;
+
+                container.innerHTML = `
+                    <div class="bg-emerald-600 text-white px-6 py-4 flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <i data-lucide="message-circle" class="w-5 h-5"></i>
+                            <div>
+                                <h4 class="font-bold text-base">Pembayaran via WhatsApp</h4>
+                                <p class="text-xs text-emerald-100">Invoice: ${order.invoice_number}</p>
+                            </div>
+                        </div>
+                        <button onclick="closePaymentGatewayModal()" class="p-1.5 rounded-lg hover:bg-white/10"><i data-lucide="x" class="w-5 h-5"></i></button>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3.5 flex items-center justify-between text-xs">
+                            <span class="text-amber-800 font-semibold">Sisa Waktu Pembayaran (24 Jam):</span>
+                            <span class="font-mono font-bold text-amber-900 countdown-timer" data-exp="${order.expired_at}">Menghitung...</span>
+                        </div>
+
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2 text-xs">
+                            <div class="font-bold text-slate-700">Preview Pesan Otomatis ke WhatsApp Admin:</div>
+                            <pre class="whitespace-pre-wrap font-sans text-slate-600 bg-white p-3 rounded-lg border border-slate-200">${waText}</pre>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row gap-2.5 pt-2">
+                            <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl text-sm text-center shadow-sm transition flex items-center justify-center gap-2">
+                                <i data-lucide="external-link" class="w-4 h-4"></i>
+                                <span>Buka WhatsApp Sekarang</span>
+                            </a>
+                            <button onclick="closePaymentGatewayModal(); switchMainView('orders');" class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold py-3 px-4 rounded-xl text-sm transition">
+                                Lihat Status Pesanan
+                            </button>
+                        </div>
+                    </div>`;
+            } else {
+                // Midtrans Snap Simulator
+                container.innerHTML = `
+                    <div class="bg-blue-700 text-white px-6 py-4 flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <i data-lucide="shield-check" class="w-5 h-5"></i>
+                            <div>
+                                <h4 class="font-bold text-base">Midtrans Snap Payment</h4>
+                                <p class="text-xs text-blue-100">Ref: ${order.gateway_order_id} • ${order.payment_channel}</p>
+                            </div>
+                        </div>
+                        <button onclick="closePaymentGatewayModal()" class="p-1.5 rounded-lg hover:bg-white/10"><i data-lucide="x" class="w-5 h-5"></i></button>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div class="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
+                            <div>
+                                <div class="text-[11px] text-blue-700 font-semibold">Total Tagihan</div>
+                                <div class="text-xl font-extrabold text-slate-900">${formatRupiah(order.total_price)}</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-[11px] text-blue-700 font-semibold">Batas Waktu (60 Menit)</div>
+                                <div class="font-mono font-bold text-sm text-blue-900 countdown-timer" data-exp="${order.expired_at}">Menghitung...</div>
+                            </div>
+                        </div>
+
+                        <div class="border border-slate-200 rounded-2xl p-5 text-center space-y-3 bg-slate-50">
+                            <span class="inline-block bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">${order.payment_channel}</span>
+                            <div class="w-36 h-36 mx-auto bg-white border-2 border-dashed border-slate-300 rounded-2xl flex flex-col items-center justify-center p-3">
+                                <i data-lucide="qr-code" class="w-16 h-16 text-slate-800"></i>
+                                <span class="text-[10px] font-mono text-slate-500 mt-1">${order.invoice_number}</span>
+                            </div>
+                            <p class="text-xs text-slate-500">Gunakan tombol simulasi di bawah untuk menguji <strong>Webhook Callback Midtrans</strong> secara real-time.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                            <button onclick="simulateMidtransWebhook(${order.id}, 'settlement')" class="bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 px-4 rounded-xl text-xs sm:text-sm shadow-sm transition flex items-center justify-center gap-1.5">
+                                <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                                <span>Simulasi Sukses (Paid)</span>
+                            </button>
+                            <button onclick="simulateMidtransWebhook(${order.id}, 'expire')" class="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-bold py-3 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-1.5">
+                                <i data-lucide="clock-alert" class="w-4 h-4"></i>
+                                <span>Simulasi Expired</span>
+                            </button>
+                        </div>
+                    </div>`;
+            }
+
+            document.getElementById('payment-gateway-modal').classList.remove('hidden');
+            document.getElementById('payment-gateway-modal').classList.add('flex');
+            updateCountdowns();
+            lucide.createIcons();
+        }
+
+        function closePaymentGatewayModal() {
+            document.getElementById('payment-gateway-modal').classList.add('hidden');
+            document.getElementById('payment-gateway-modal').classList.remove('flex');
+            state.activePaymentOrderId = null;
+        }
+
+        // --- 9. ORDER LIFECYCLE, WEBHOOK SIMULATION & STOCK RESTORATION ---
+        function simulateMidtransWebhook(orderId, status) {
+            const order = state.orders.find(o => o.id === orderId);
+            if (!order || order.status !== 'pending') return;
+
+            if (status === 'settlement') {
+                order.status = 'paid';
+                order.paid_at = new Date().toISOString();
+                pushEmailLog(
+                    order.customer_email,
+                    `[${order.invoice_number}] Pembayaran Diterima! Pesanan Diproses`,
+                    `Terima kasih ${order.customer_name}, pembayaran Midtrans (${order.payment_channel}) sebesar ${formatRupiah(order.total_price)} telah terverifikasi.`
+                );
+                showToast(`Webhook Midtrans: ${order.invoice_number} berstatus PAID!`);
+            } else if (status === 'expire') {
+                expireOrCancelOrder(order.id, 'expired');
+            }
+
+            saveState();
+            closePaymentGatewayModal();
+            renderAll();
+        }
+
+        function expireOrCancelOrder(orderId, targetStatus = 'expired') {
+            const order = state.orders.find(o => o.id === orderId);
+            if (!order || order.status !== 'pending') return;
+
+            // Restore product stock atomically
+            for (const item of order.items) {
+                const prod = state.products.find(p => p.id === item.product_id);
+                if (prod) {
+                    prod.stock += item.quantity;
+                }
+            }
+
+            order.status = targetStatus;
+            pushEmailLog(
+                order.customer_email,
+                `[${order.invoice_number}] Pesanan ${targetStatus === 'expired' ? 'Kedaluwarsa' : 'Dibatalkan'}`,
+                `Pesanan ${order.invoice_number} telah ${targetStatus === 'expired' ? 'melewati batas waktu bayar' : 'dibatalkan'} dan stok produk telah dikembalikan.`
+            );
+
+            saveState();
+            renderAll();
+            showToast(`Order ${order.invoice_number} (${targetStatus}) — Stok dikembalikan.`, 'info');
+        }
+
+        function updateOrderStatusAdmin(orderId, newStatus) {
+            const order = state.orders.find(o => o.id === orderId);
+            if (!order) return;
+
+            if (newStatus === 'expired') {
+                expireOrCancelOrder(orderId, 'expired');
+                return;
+            }
+
+            order.status = newStatus;
+            if (newStatus === 'paid' && !order.paid_at) {
+                order.paid_at = new Date().toISOString();
+                pushEmailLog(
+                    order.customer_email,
+                    `[${order.invoice_number}] Pembayaran WhatsApp Dikonfirmasi Admin`,
+                    `Halo ${order.customer_name}, transfer pembayaran Anda untuk ${order.invoice_number} telah dikonfirmasi lunas oleh admin.`
+                );
+            } else if (newStatus === 'shipped') {
+                pushEmailLog(
+                    order.customer_email,
+                    `[${order.invoice_number}] Pesanan Anda Sedang Dikirim!`,
+                    `Kabar baik ${order.customer_name}, paket pesanan ${order.invoice_number} sudah diserahkan ke kurir menuju ${order.shipping_address}.`
+                );
+            } else if (newStatus === 'delivered') {
+                pushEmailLog(
+                    order.customer_email,
+                    `[${order.invoice_number}] Pesanan Telah Diterima`,
+                    `Terima kasih telah berbelanja di NusantaraMart UMKM!`
+                );
+            }
+
+            saveState();
+            renderAll();
+            showToast(`Status ${order.invoice_number} diperbarui ke ${newStatus.toUpperCase()}.`);
+        }
+
+        function pushEmailLog(to, subject, body) {
+            state.emails.unshift({
+                id: Date.now() + Math.random(),
+                to,
+                subject,
+                body,
+                sent_at: new Date().toISOString()
+            });
+        }
+
+        // --- 10. RENDER CUSTOMER ORDERS & EMAIL LOGS ---
+        function getStatusBadge(status) {
+            const map = {
+                pending: 'bg-amber-100 text-amber-800 border-amber-200',
+                paid: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                shipped: 'bg-blue-100 text-blue-800 border-blue-200',
+                delivered: 'bg-purple-100 text-purple-800 border-purple-200',
+                expired: 'bg-red-100 text-red-700 border-red-200'
+            };
+            const label = {
+                pending: 'Menunggu Bayar',
+                paid: 'Lunas (Paid)',
+                shipped: 'Dikirim (Shipped)',
+                delivered: 'Selesai (Delivered)',
+                expired: 'Expired / Batal'
+            };
+            return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${map[status] || map.pending}">${label[status] || status}</span>`;
+        }
+
+        function renderCustomerOrders() {
+            document.getElementById('badge-orders-count').textContent = state.orders.length;
+            const list = document.getElementById('customer-orders-list');
+
+            if (state.orders.length === 0) {
+                list.innerHTML = `
+                    <div class="bg-white rounded-2xl border border-slate-200 p-10 text-center space-y-2">
+                        <p class="font-bold text-slate-700">Belum ada riwayat pesanan</p>
+                        <p class="text-xs text-slate-500">Silakan pilih produk di katalog dan lakukan checkout untuk menguji alur WhatsApp maupun Midtrans.</p>
+                    </div>`;
+            } else {
+                list.innerHTML = state.orders.map(o => `
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-mono font-extrabold text-sm text-slate-900">${o.invoice_number}</span>
+                                    ${getStatusBadge(o.status)}
+                                </div>
+                                <div class="text-xs text-slate-500 mt-0.5">Dibuat: ${formatDateTime(o.created_at)}</div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs font-bold px-2.5 py-1 rounded-lg ${o.payment_method === 'whatsapp' ? 'bg-emerald-50 text-emerald-700' : 'bg-blue-50 text-blue-700'}">
+                                    ${o.payment_method === 'whatsapp' ? 'WhatsApp Direct' : `Midtrans (${o.payment_channel})`}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5 text-xs">
+                            ${o.items.map(i => `<div class="flex justify-between"><span class="text-slate-700">${i.product_name} &times; ${i.quantity}</span><span class="font-semibold">${formatRupiah(i.line_total)}</span></div>`).join('')}
+                            <div class="flex justify-between text-slate-500 pt-1 border-t border-slate-100">
+                                <span>Ongkos Kirim</span>
+                                <span>${formatRupiah(o.shipping_cost)}</span>
+                            </div>
+                            <div class="flex justify-between font-extrabold text-sm text-slate-900 pt-1">
+                                <span>Total Bayar</span>
+                                <span class="text-brand-700">${formatRupiah(o.total_price)}</span>
+                            </div>
+                        </div>
+
+                        ${o.status === 'pending' ? `
+                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+                            <div>
+                                <span class="text-amber-800 font-semibold">Batas Bayar: </span>
+                                <span class="font-mono font-bold text-amber-900 countdown-timer" data-exp="${o.expired_at}">...</span>
+                            </div>
+                            <button onclick="openPaymentGatewayModal(${o.id})" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-3.5 py-1.5 rounded-lg transition">
+                                Lanjutkan Pembayaran
+                            </button>
+                        </div>` : ''}
+                    </div>
+                `).join('');
+            }
+
+            // Render email logs
+            document.getElementById('email-count-badge').textContent = state.emails.length;
+            const emailList = document.getElementById('email-logs-list');
+            if (state.emails.length === 0) {
+                emailList.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Belum ada notifikasi email terkirim.</p>`;
+            } else {
+                emailList.innerHTML = state.emails.map(e => `
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-1">
+                        <div class="flex items-center justify-between text-[10px] text-slate-400">
+                            <span class="truncate max-w-[160px]">Ke: ${e.to}</span>
+                            <span>${formatDateTime(e.sent_at)}</span>
+                        </div>
+                        <div class="font-bold text-xs text-slate-800">${e.subject}</div>
+                        <p class="text-[11px] text-slate-600 leading-relaxed">${e.body}</p>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // --- 11. RENDER ADMIN PANEL & ANALYTICS ---
+        function renderAdminAnalytics() {
+            const validOrders = state.orders.filter(o => ['paid', 'shipped', 'delivered'].includes(o.status));
+            const totalSales = validOrders.reduce((s, o) => s + o.total_price, 0);
+            const pendingCount = state.orders.filter(o => o.status === 'pending').length;
+
+            // Customer repeat rate calculation
+            const customerCounts = {};
+            validOrders.forEach(o => {
+                const key = o.customer_phone || o.customer_email;
+                customerCounts[key] = (customerCounts[key] || 0) + 1;
+            });
+            const uniqueCustomers = Object.keys(customerCounts).length;
+            const repeatCustomers = Object.values(customerCounts).filter(c => c > 1).length;
+            const repeatRate = uniqueCustomers > 0 ? Math.round((repeatCustomers / uniqueCustomers) * 100) : 0;
+
+            document.getElementById('admin-kpi-grid').innerHTML = `
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                    <div class="text-xs font-semibold text-slate-500">Total Penjualan Lunas</div>
+                    <div class="text-2xl font-extrabold text-brand-700 mt-1">${formatRupiah(totalSales)}</div>
+                    <div class="text-[11px] text-slate-400 mt-1">Dari ${validOrders.length} pesanan terverifikasi</div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                    <div class="text-xs font-semibold text-slate-500">Menunggu Pembayaran</div>
+                    <div class="text-2xl font-extrabold text-amber-600 mt-1">${pendingCount} Pesanan</div>
+                    <div class="text-[11px] text-slate-400 mt-1">Perlu verifikasi WA / Webhook</div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                    <div class="text-xs font-semibold text-slate-500">Customer Repeat Rate</div>
+                    <div class="text-2xl font-extrabold text-blue-600 mt-1">${repeatRate}%</div>
+                    <div class="text-[11px] text-slate-400 mt-1">${repeatCustomers} dari ${uniqueCustomers} pelanggan repeat</div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                    <div class="text-xs font-semibold text-slate-500">Total Stok Katalog</div>
+                    <div class="text-2xl font-extrabold text-slate-900 mt-1">${state.products.reduce((s, p) => s + p.stock, 0)} Unit</div>
+                    <div class="text-[11px] text-slate-400 mt-1">Dalam ${state.products.length} SKU produk aktif</div>
+                </div>
+            `;
+
+            // Top selling products
+            const salesByProduct = {};
+            validOrders.forEach(o => {
+                o.items.forEach(item => {
+                    if (!salesByProduct[item.product_name]) {
+                        salesByProduct[item.product_name] = { qty: 0, revenue: 0 };
+                    }
+                    salesByProduct[item.product_name].qty += item.quantity;
+                    salesByProduct[item.product_name].revenue += item.line_total;
+                });
+            });
+
+            const sortedTop = Object.entries(salesByProduct).sort((a, b) => b[1].qty - a[1].qty);
+            const topContainer = document.getElementById('top-selling-list');
+            if (sortedTop.length === 0) {
+                topContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Belum ada data penjualan lunas.</p>`;
+            } else {
+                topContainer.innerHTML = sortedTop.map(([name, stat], idx) => `
+                    <div class="flex items-center justify-between gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="w-6 h-6 rounded-lg bg-brand-600 text-white text-xs font-bold flex items-center justify-center shrink-0">${idx + 1}</span>
+                            <div class="truncate">
+                                <div class="font-bold text-xs text-slate-900 truncate">${name}</div>
+                                <div class="text-[11px] text-slate-500">${stat.qty} terjual</div>
+                            </div>
+                        </div>
+                        <div class="font-bold text-xs text-brand-700 shrink-0">${formatRupiah(stat.revenue)}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function renderAdminOrders() {
+            const filter = document.getElementById('admin-order-filter').value;
+            const tbody = document.getElementById('admin-orders-tbody');
+            const filtered = state.orders.filter(o => filter === 'all' || o.status === filter);
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-xs text-slate-400">Tidak ada data pesanan untuk filter ini.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(o => {
+                let actions = '';
+                if (o.status === 'pending') {
+                    actions = `
+                        <button onclick="updateOrderStatusAdmin(${o.id}, 'paid')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-2.5 py-1.5 rounded-lg transition">Tandai Lunas</button>
+                        <button onclick="updateOrderStatusAdmin(${o.id}, 'expired')" class="bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1.5 rounded-lg transition">Batalkan</button>
+                    `;
+                } else if (o.status === 'paid') {
+                    actions = `<button onclick="updateOrderStatusAdmin(${o.id}, 'shipped')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-2.5 py-1.5 rounded-lg transition">Kirim (Shipped)</button>`;
+                } else if (o.status === 'shipped') {
+                    actions = `<button onclick="updateOrderStatusAdmin(${o.id}, 'delivered')" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-2.5 py-1.5 rounded-lg transition">Selesai (Delivered)</button>`;
+                } else {
+                    actions = `<span class="text-xs text-slate-400">-</span>`;
+                }
+
+                return `
+                <tr class="hover:bg-slate-50/80">
+                    <td class="py-3.5 px-4">
+                        <div class="font-mono font-bold text-xs text-slate-900">${o.invoice_number}</div>
+                        <div class="text-[11px] text-slate-400">${formatDateTime(o.created_at)}</div>
+                    </td>
+                    <td class="py-3.5 px-4">
+                        <div class="font-semibold text-xs text-slate-900">${o.customer_name}</div>
+                        <div class="text-[11px] text-slate-500">${o.customer_phone}</div>
+                    </td>
+                    <td class="py-3.5 px-4">
+                        <span class="text-xs font-semibold ${o.payment_method === 'whatsapp' ? 'text-emerald-700' : 'text-blue-700'}">
+                            ${o.payment_method === 'whatsapp' ? 'WhatsApp' : 'Midtrans'}
+                        </span>
+                        <div class="text-[11px] text-slate-500">${o.payment_channel}</div>
+                    </td>
+                    <td class="py-3.5 px-4 font-bold text-xs text-slate-900">${formatRupiah(o.total_price)}</td>
+                    <td class="py-3.5 px-4">${getStatusBadge(o.status)}</td>
+                    <td class="py-3.5 px-4 text-right space-x-1 whitespace-nowrap">${actions}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function renderAdminProducts() {
+            const tbody = document.getElementById('admin-products-tbody');
+            tbody.innerHTML = state.products.map(p => `
+                <tr class="hover:bg-slate-50/80">
+                    <td class="py-3 px-4 font-semibold text-xs text-slate-900">${p.name}</td>
+                    <td class="py-3 px-4 text-xs text-slate-500">${p.category}</td>
+                    <td class="py-3 px-4 font-bold text-xs text-slate-800">${formatRupiah(p.price)}</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2 py-0.5 rounded-full text-xs font-bold ${p.stock <= 5 ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-700'}">${p.stock}</span>
+                    </td>
+                    <td class="py-3 px-4 text-right space-x-1 whitespace-nowrap">
+                        <button onclick="openProductModal(${p.id})" class="text-blue-600 hover:bg-blue-50 px-2.5 py-1 rounded-lg text-xs font-bold">Edit</button>
+                        <button onclick="deleteProduct(${p.id})" class="text-red-600 hover:bg-red-50 px-2.5 py-1 rounded-lg text-xs font-bold">Hapus</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // --- 12. ADMIN PRODUCT CRUD ---
+        function openProductModal(productId = null) {
+            const modal = document.getElementById('product-modal');
+            if (productId) {
+                const p = state.products.find(item => item.id === productId);
+                document.getElementById('product-modal-title').textContent = 'Edit Produk';
+                document.getElementById('prod-id').value = p.id;
+                document.getElementById('prod-name').value = p.name;
+                document.getElementById('prod-category').value = p.category;
+                document.getElementById('prod-stock').value = p.stock;
+                document.getElementById('prod-price').value = p.price;
+                document.getElementById('prod-desc').value = p.desc || '';
+            } else {
+                document.getElementById('product-modal-title').textContent = 'Tambah Produk Baru';
+                document.getElementById('prod-id').value = '';
+                document.getElementById('prod-name').value = '';
+                document.getElementById('prod-stock').value = 10;
+                document.getElementById('prod-price').value = 50000;
+                document.getElementById('prod-desc').value = '';
+            }
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeProductModal() {
+            document.getElementById('product-modal').classList.add('hidden');
+            document.getElementById('product-modal').classList.remove('flex');
+        }
+
+        function saveProduct(event) {
+            event.preventDefault();
+            const idVal = document.getElementById('prod-id').value;
+            const payload = {
+                name: document.getElementById('prod-name').value.trim(),
+                category: document.getElementById('prod-category').value,
+                stock: Number(document.getElementById('prod-stock').value),
+                price: Number(document.getElementById('prod-price').value),
+                desc: document.getElementById('prod-desc').value.trim(),
+                color: 'from-brand-600 to-slate-800',
+                icon: 'package'
+            };
+
+            if (idVal) {
+                const idx = state.products.findIndex(p => p.id === Number(idVal));
+                if (idx !== -1) {
+                    state.products[idx] = { ...state.products[idx], ...payload };
+                    showToast('Produk berhasil diperbarui.');
+                }
+            } else {
+                state.products.unshift({ id: Date.now(), ...payload });
+                showToast('Produk baru berhasil ditambahkan ke katalog.');
+            }
+
+            saveState();
+            closeProductModal();
+            renderAll();
+        }
+
+        function deleteProduct(productId) {
+            state.products = state.products.filter(p => p.id !== productId);
+            saveState();
+            renderAll();
+            showToast('Produk dihapus dari katalog.', 'info');
+        }
+
+        // --- 13. LIVE EXPIRY COUNTDOWN & AUTO-EXPIRE SCHEDULER ---
+        function updateCountdowns() {
+            const now = Date.now();
+            let stateChanged = false;
+
+            // Auto-expire pending orders past expired_at
+            state.orders.forEach(o => {
+                if (o.status === 'pending' && o.expired_at) {
+                    const expMs = new Date(o.expired_at).getTime();
+                    if (now >= expMs) {
+                        for (const item of o.items) {
+                            const prod = state.products.find(p => p.id === item.product_id);
+                            if (prod) prod.stock += item.quantity;
+                        }
+                        o.status = 'expired';
+                        stateChanged = true;
+                    }
+                }
+            });
+
+            if (stateChanged) {
+                saveState();
+                renderAll();
+            }
+
+            document.querySelectorAll('.countdown-timer').forEach(el => {
+                const expMs = new Date(el.getAttribute('data-exp')).getTime();
+                const diff = Math.max(0, expMs - now);
+                const hrs = Math.floor(diff / 3600000);
+                const mins = Math.floor((diff % 3600000) / 60000);
+                const secs = Math.floor((diff % 60000) / 1000);
+                el.textContent = `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            });
+        }
+
+        // --- 14. EXPORT / COPY UTILITIES FOR VS CODE ---
+        function copyLaravelSnippet() {
+            const textarea = document.getElementById('laravel-php-snippet');
+            textarea.select();
+            document.execCommand('copy');
+            showToast('Kode PHP PaymentFlowService berhasil disalin!');
+        }
+
+        function downloadCurrentHtml() {
+            const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'umkm-ecommerce.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('File umkm-ecommerce.html siap dibuka di VS Code!');
+        }
+
+        // --- 15. MASTER RENDER ---
+        function renderAll() {
+            renderCategories();
+            renderProducts();
+            renderCart();
+            renderCustomerOrders();
+            renderAdminAnalytics();
+            renderAdminOrders();
+            renderAdminProducts();
+            updateCountdowns();
+            lucide.createIcons();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            renderAll();
+            setInterval(updateCountdowns, 1000);
+        });
+    </script>
+
+</body></html>
